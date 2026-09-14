@@ -1,0 +1,104 @@
+{
+  "nav_home": "Bosh sahifa",
+  "nav_profile": "Profil",
+  "nav_support": "Yordam",
+  "nav_login": "Kirish",
+  "nav_register": "Ro'yxatdan o'tish",
+  "nav_logout": "Chiqish",
+  "nav_admin": "Admin",
+
+  "hero_title": "PUBG Mobile UC — tez va ishonchli",
+  "hero_subtitle": "Eng qulay narxlarda UC sotib oling. To'lov qiling, PUBG ID kiriting va bir necha daqiqada UC hisobingizga tushadi.",
+
+  "pkg_buy": "Sotib olish",
+  "pkg_uc_label": "UC",
+  "sum": "so'm",
+
+  "modal_buy_title": "Xaridni tasdiqlash",
+  "modal_player_id": "PUBG Player ID",
+  "modal_player_id_placeholder": "Masalan: 5123456789",
+  "modal_confirm": "Tasdiqlash",
+  "modal_cancel": "Bekor qilish",
+  "modal_balance_info": "Joriy balansingiz",
+
+  "login_title": "Tizimga kirish",
+  "login_username": "Username",
+  "login_password": "Parol",
+  "login_btn": "Kirish",
+  "login_no_account": "Hisobingiz yo'qmi?",
+  "login_register_link": "Ro'yxatdan o'tish",
+
+  "register_title": "Ro'yxatdan o'tish",
+  "register_username": "Username",
+  "register_username_placeholder": "masalan: alisher_2013",
+  "register_password": "Parol",
+  "register_btn": "Ro'yxatdan o'tish",
+  "register_have_account": "Hisobingiz bormi?",
+  "register_login_link": "Kirish",
+
+  "menu_title": "Menyu",
+  "menu_profile": "Profil",
+  "menu_global_chat": "Global chat",
+  "menu_language": "Til",
+  "menu_sound": "Kosmik ovoz",
+
+  "global_chat_title": "Global chat",
+  "global_chat_subtitle": "Saytdagi barcha foydalanuvchilar bilan suhbatlashing. Hurmatli bo'ling — so'kinish taqiqlangan.",
+
+  "settings_title": "Sozlamalar",
+  "settings_username": "Username",
+  "settings_username_save": "Username'ni saqlash",
+  "settings_current_password": "Joriy parol",
+  "settings_new_password": "Yangi parol",
+  "settings_password_save": "Parolni yangilash",
+
+  "profile_title": "Mening profilim",
+  "profile_balance": "Balans",
+  "profile_topup_title": "Hisobni to'ldirish",
+  "profile_card_number": "Karta raqami",
+  "profile_card_owner": "Egasi",
+  "profile_topup_amount": "Summani kiriting (so'm)",
+  "profile_topup_receipt": "Chek rasmini yuklang",
+  "profile_topup_submit": "Yuborish",
+  "profile_topup_history": "To'ldirish tarixi",
+  "profile_orders_history": "Buyurtmalar tarixi",
+
+  "status_pending": "Kutilmoqda",
+  "status_delivered": "Yetkazildi",
+  "status_approved": "Tasdiqlandi",
+  "status_rejected": "Rad etildi",
+
+  "support_title": "Yordam bo'limi",
+  "support_subtitle": "Savolingiz bo'lsa, admin bilan bevosita yozishing",
+  "support_placeholder": "Xabaringizni yozing...",
+  "support_send": "Yuborish",
+
+  "admin_login_title": "Admin panel",
+  "admin_password_placeholder": "Admin parolini kiriting",
+  "admin_login_btn": "Kirish",
+
+  "admin_tab_dashboard": "Umumiy",
+  "admin_tab_packages": "UC paketlari",
+  "admin_tab_orders": "Buyurtmalar",
+  "admin_tab_topups": "To'ldirishlar",
+  "admin_tab_users": "Foydalanuvchilar",
+  "admin_tab_support": "Yordam",
+  "admin_tab_settings": "Sozlamalar",
+
+  "admin_stat_users": "Foydalanuvchilar",
+  "admin_stat_pending_orders": "Kutilayotgan buyurtmalar",
+  "admin_stat_pending_topups": "Kutilayotgan to'ldirishlar",
+  "admin_stat_unread": "O'qilmagan xabarlar",
+
+  "admin_pkg_title": "Yangi paket",
+  "admin_pkg_name": "Nomi",
+  "admin_pkg_uc": "UC miqdori",
+  "admin_pkg_price": "Narxi (so'm)",
+  "admin_pkg_add": "Qo'shish",
+
+  "admin_settings_card_number": "Karta raqami",
+  "admin_settings_card_owner": "Karta egasi",
+  "admin_settings_save": "Saqlash",
+
+  "footer_text": "Barcha huquqlar himoyalangan."
+}

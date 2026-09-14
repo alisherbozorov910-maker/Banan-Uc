@@ -1,0 +1,104 @@
+{
+  "nav_home": "Главная",
+  "nav_profile": "Профиль",
+  "nav_support": "Поддержка",
+  "nav_login": "Войти",
+  "nav_register": "Регистрация",
+  "nav_logout": "Выйти",
+  "nav_admin": "Админ",
+
+  "hero_title": "PUBG Mobile UC — быстро и надёжно",
+  "hero_subtitle": "Покупайте UC по лучшим ценам. Оплатите, введите PUBG ID, и UC поступит на ваш аккаунт за несколько минут.",
+
+  "pkg_buy": "Купить",
+  "pkg_uc_label": "UC",
+  "sum": "сум",
+
+  "modal_buy_title": "Подтверждение покупки",
+  "modal_player_id": "PUBG Player ID",
+  "modal_player_id_placeholder": "Например: 5123456789",
+  "modal_confirm": "Подтвердить",
+  "modal_cancel": "Отмена",
+  "modal_balance_info": "Ваш текущий баланс",
+
+  "login_title": "Вход в систему",
+  "login_username": "Имя пользователя",
+  "login_password": "Пароль",
+  "login_btn": "Войти",
+  "login_no_account": "Нет аккаунта?",
+  "login_register_link": "Зарегистрироваться",
+
+  "register_title": "Регистрация",
+  "register_username": "Имя пользователя",
+  "register_username_placeholder": "например: alisher_2013",
+  "register_password": "Пароль",
+  "register_btn": "Зарегистрироваться",
+  "register_have_account": "Уже есть аккаунт?",
+  "register_login_link": "Войти",
+
+  "menu_title": "Меню",
+  "menu_profile": "Профиль",
+  "menu_global_chat": "Общий чат",
+  "menu_language": "Язык",
+  "menu_sound": "Космический звук",
+
+  "global_chat_title": "Общий чат",
+  "global_chat_subtitle": "Общайтесь со всеми пользователями сайта. Будьте уважительны — ругательства запрещены.",
+
+  "settings_title": "Настройки",
+  "settings_username": "Имя пользователя",
+  "settings_username_save": "Сохранить имя пользователя",
+  "settings_current_password": "Текущий пароль",
+  "settings_new_password": "Новый пароль",
+  "settings_password_save": "Обновить пароль",
+
+  "profile_title": "Мой профиль",
+  "profile_balance": "Баланс",
+  "profile_topup_title": "Пополнение баланса",
+  "profile_card_number": "Номер карты",
+  "profile_card_owner": "Владелец",
+  "profile_topup_amount": "Введите сумму (сум)",
+  "profile_topup_receipt": "Загрузите чек",
+  "profile_topup_submit": "Отправить",
+  "profile_topup_history": "История пополнений",
+  "profile_orders_history": "История заказов",
+
+  "status_pending": "В ожидании",
+  "status_delivered": "Доставлено",
+  "status_approved": "Подтверждено",
+  "status_rejected": "Отклонено",
+
+  "support_title": "Раздел поддержки",
+  "support_subtitle": "Если у вас есть вопрос, напишите напрямую администратору",
+  "support_placeholder": "Напишите сообщение...",
+  "support_send": "Отправить",
+
+  "admin_login_title": "Панель администратора",
+  "admin_password_placeholder": "Введите пароль администратора",
+  "admin_login_btn": "Войти",
+
+  "admin_tab_dashboard": "Обзор",
+  "admin_tab_packages": "Пакеты UC",
+  "admin_tab_orders": "Заказы",
+  "admin_tab_topups": "Пополнения",
+  "admin_tab_users": "Пользователи",
+  "admin_tab_support": "Поддержка",
+  "admin_tab_settings": "Настройки",
+
+  "admin_stat_users": "Пользователи",
+  "admin_stat_pending_orders": "Заказы в ожидании",
+  "admin_stat_pending_topups": "Пополнения в ожидании",
+  "admin_stat_unread": "Непрочитанные сообщения",
+
+  "admin_pkg_title": "Новый пакет",
+  "admin_pkg_name": "Название",
+  "admin_pkg_uc": "Количество UC",
+  "admin_pkg_price": "Цена (сум)",
+  "admin_pkg_add": "Добавить",
+
+  "admin_settings_card_number": "Номер карты",
+  "admin_settings_card_owner": "Владелец карты",
+  "admin_settings_save": "Сохранить",
+
+  "footer_text": "Все права защищены."
+}
