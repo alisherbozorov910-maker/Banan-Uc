@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ro'yxatdan o'tish - PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<div class="form-page">
+  <div class="card form-card">
+    <h2 data-i18n="register_title">Ro'yxatdan o'tish</h2>
+    <div id="error-box" class="alert alert-error hidden"></div>
+    <div class="field">
+      <label data-i18n="register_username">Username</label>
+      <input type="text" id="username" data-i18n-placeholder="register_username_placeholder" placeholder="masalan: alisher_2013">
+    </div>
+    <div class="field">
+      <label data-i18n="register_password">Parol</label>
+      <input type="password" id="password">
+    </div>
+    <button class="btn btn-primary btn-block" id="register-btn" data-i18n="register_btn">Ro'yxatdan o'tish</button>
+
+    <div class="flex items-center gap-2 mt-3" style="color:var(--text-dim);font-size:12px;">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+      <span>yoki</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+    </div>
+    <div id="google-btn-container" class="mt-3" style="display:flex;justify-content:center;"></div>
+
+    <div class="form-footer-link">
+      <span data-i18n="register_have_account">Hisobingiz bormi?</span>
+      <a href="/login.html" data-i18n="register_login_link">Kirish</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="/js/space-background.js"></script>
+<script src="/js/space-sound.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/google-auth.js"></script>
+<script>
+renderNavbar('register');
+initGoogleSignIn('google-btn-container');
+
+document.getElementById('register-btn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const errBox = document.getElementById('error-box');
+  errBox.classList.add('hidden');
+  try {
+    await api('/auth/register', { method: 'POST', body: { username, password } });
+    window.location.href = '/';
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+});
+
+document.getElementById('password').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('register-btn').click();
+});
+</script>
+</body>
+</html>

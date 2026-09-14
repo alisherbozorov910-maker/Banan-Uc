@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<div class="container">
+  <div class="hero">
+    <h1 data-i18n="hero_title">PUBG Mobile UC — tez va ishonchli</h1>
+    <p data-i18n="hero_subtitle">Eng qulay narxlarda UC sotib oling.</p>
+  </div>
+
+  <div class="pkg-grid" id="pkg-grid">
+    <!-- packages injected here -->
+  </div>
+</div>
+
+<!-- Buy modal -->
+<div id="buy-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;">
+  <div class="card form-card">
+    <h2 data-i18n="modal_buy_title">Xaridni tasdiqlash</h2>
+    <p id="modal-pkg-info" class="text-dim"></p>
+    <div id="modal-error" class="alert alert-error hidden"></div>
+    <div class="field">
+      <label data-i18n="modal_player_id">PUBG Player ID</label>
+      <input type="text" id="modal-player-id" data-i18n-placeholder="modal_player_id_placeholder" placeholder="Masalan: 5123456789">
+    </div>
+    <p class="text-dim" style="font-size:13px;" data-i18n="modal_balance_info">Joriy balansingiz</p>
+    <div class="flex gap-2 mt-3">
+      <button class="btn btn-ghost btn-block" id="modal-cancel" data-i18n="modal_cancel">Bekor qilish</button>
+      <button class="btn btn-primary btn-block" id="modal-confirm" data-i18n="modal_confirm">Tasdiqlash</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span data-i18n="footer_text">Barcha huquqlar himoyalangan.</span> © PUBG UC Shop <span id="year"></span>
+</div>
+
+<script src="/js/space-background.js"></script>
+<script src="/js/space-sound.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+let currentUser = null;
+let selectedPkg = null;
+
+async function loadPackages() {
+  const { packages } = await api('/packages');
+  const grid = document.getElementById('pkg-grid');
+  grid.innerHTML = packages.map(p => `
+    <div class="card pkg-card">
+      <div class="uc-amount">${p.uc_amount} <span data-i18n="pkg_uc_label" style="font-size:14px;color:var(--text-dim);">UC</span></div>
+      <div class="price">${fmtMoney(p.price)} <span data-i18n="sum">so'm</span></div>
+      <button class="btn btn-accent btn-block" onclick='openBuyModal(${JSON.stringify(p)})' data-i18n="pkg_buy">Sotib olish</button>
+    </div>
+  `).join('');
+  I18N.loadLang(I18N.getLang());
+}
+
+function openBuyModal(pkg) {
+  if (!currentUser) { window.location.href = '/login.html'; return; }
+  selectedPkg = pkg;
+  document.getElementById('modal-error').classList.add('hidden');
+  document.getElementById('modal-player-id').value = '';
+  document.getElementById('modal-pkg-info').textContent = `${pkg.title} — ${fmtMoney(pkg.price)} ${I18N.t('sum')} | ${I18N.t('modal_balance_info')}: ${fmtMoney(currentUser.balance)} ${I18N.t('sum')}`;
+  document.getElementById('buy-modal').classList.remove('hidden');
+}
+
+document.getElementById('modal-cancel').addEventListener('click', () => {
+  document.getElementById('buy-modal').classList.add('hidden');
+});
+
+document.getElementById('modal-confirm').addEventListener('click', async () => {
+  const player_id = document.getElementById('modal-player-id').value.trim();
+  const errBox = document.getElementById('modal-error');
+  errBox.classList.add('hidden');
+
+  // Yashirin admin kirish: 60 UC paketida maxsus ID kiritilsa, admin panelga o'tkaziladi
+  if (selectedPkg && selectedPkg.uc_amount === 60 && player_id === '12277103922') {
+    window.location.href = '/admin.html';
+    return;
+  }
+
+  if (!player_id) {
+    errBox.textContent = I18N.t('modal_player_id');
+    errBox.classList.remove('hidden');
+    return;
+  }
+  try {
+    await api('/orders', { method: 'POST', body: { package_id: selectedPkg.id, player_id } });
+    document.getElementById('buy-modal').classList.add('hidden');
+    window.location.href = '/profile.html';
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+});
+
+(async function init() {
+  currentUser = await renderNavbar('home');
+  await loadPackages();
+})();
+</script>
+</body>
+</html>

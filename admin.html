@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin panel - PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<!-- Admin login gate -->
+<div class="form-page" id="admin-login-view">
+  <div class="card form-card">
+    <h2 data-i18n="admin_login_title">Admin panel</h2>
+    <div id="admin-login-error" class="alert alert-error hidden"></div>
+    <div class="field">
+      <input type="password" id="admin-password" data-i18n-placeholder="admin_password_placeholder" placeholder="Admin parolini kiriting">
+    </div>
+    <button class="btn btn-primary btn-block" id="admin-login-btn" data-i18n="admin_login_btn">Kirish</button>
+  </div>
+</div>
+
+<!-- Admin dashboard -->
+<div class="container hidden" id="admin-dashboard-view">
+  <div class="admin-tabs mt-4">
+    <button class="admin-tab-btn active" data-tab="dashboard" data-i18n="admin_tab_dashboard">Umumiy</button>
+    <button class="admin-tab-btn" data-tab="packages" data-i18n="admin_tab_packages">UC paketlari</button>
+    <button class="admin-tab-btn" data-tab="orders" data-i18n="admin_tab_orders">Buyurtmalar</button>
+    <button class="admin-tab-btn" data-tab="topups" data-i18n="admin_tab_topups">To'ldirishlar</button>
+    <button class="admin-tab-btn" data-tab="users" data-i18n="admin_tab_users">Foydalanuvchilar</button>
+    <button class="admin-tab-btn" data-tab="support" data-i18n="admin_tab_support">Yordam</button>
+    <button class="admin-tab-btn" data-tab="settings" data-i18n="admin_tab_settings">Sozlamalar</button>
+    <button class="admin-tab-btn btn-danger" id="admin-logout-btn" style="margin-left:auto;">🚪</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="admin-panel active" id="panel-dashboard">
+    <div class="stat-grid">
+      <div class="card stat-card"><div class="num" id="stat-users">0</div><div class="label" data-i18n="admin_stat_users">Foydalanuvchilar</div></div>
+      <div class="card stat-card"><div class="num" id="stat-orders">0</div><div class="label" data-i18n="admin_stat_pending_orders">Kutilayotgan buyurtmalar</div></div>
+      <div class="card stat-card"><div class="num" id="stat-topups">0</div><div class="label" data-i18n="admin_stat_pending_topups">Kutilayotgan to'ldirishlar</div></div>
+      <div class="card stat-card"><div class="num" id="stat-messages">0</div><div class="label" data-i18n="admin_stat_unread">O'qilmagan xabarlar</div></div>
+    </div>
+  </div>
+
+  <!-- Packages -->
+  <div class="admin-panel" id="panel-packages">
+    <div class="card">
+      <h3 data-i18n="admin_pkg_title">Yangi paket</h3>
+      <div class="inline-form">
+        <input type="text" id="pkg-title" data-i18n-placeholder="admin_pkg_name" placeholder="Nomi (masalan: 60 UC)">
+        <input type="number" id="pkg-uc" data-i18n-placeholder="admin_pkg_uc" placeholder="UC miqdori">
+        <input type="number" id="pkg-price" data-i18n-placeholder="admin_pkg_price" placeholder="Narxi (so'm)">
+        <button class="btn btn-accent" id="pkg-add-btn" data-i18n="admin_pkg_add">Qo'shish</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Nomi</th><th>UC</th><th>Narx</th><th>Faol</th><th>Amallar</th></tr></thead>
+          <tbody id="packages-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders -->
+  <div class="admin-panel" id="panel-orders">
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Foydalanuvchi</th><th>Paket</th><th>Player ID</th><th>Narx</th><th>Status</th><th>Sana</th><th>Amallar</th></tr></thead>
+          <tbody id="orders-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Topups -->
+  <div class="admin-panel" id="panel-topups">
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Foydalanuvchi</th><th>Summa</th><th>Chek</th><th>Status</th><th>Sana</th><th>Amallar</th></tr></thead>
+          <tbody id="topups-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div class="admin-panel" id="panel-users">
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>F.I.Sh</th><th>Email</th><th>Balans</th><th>Tasdiqlangan</th><th>Amallar</th></tr></thead>
+          <tbody id="users-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Support -->
+  <div class="admin-panel" id="panel-support">
+    <div class="admin-split">
+      <div class="card">
+        <div class="thread-list" id="thread-list"></div>
+      </div>
+      <div class="card">
+        <div id="chat-header" class="text-dim mt-2">Suhbatni tanlang</div>
+        <div class="chat-box" id="admin-chat-box"></div>
+        <div class="chat-input-row">
+          <input type="text" id="admin-chat-input" placeholder="Javob yozing...">
+          <button class="btn btn-primary" id="admin-chat-send">Yuborish</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="admin-panel" id="panel-settings">
+    <div class="card" style="max-width:500px;">
+      <div class="field">
+        <label data-i18n="admin_settings_card_number">Karta raqami</label>
+        <input type="text" id="settings-card-number">
+      </div>
+      <div class="field">
+        <label data-i18n="admin_settings_card_owner">Karta egasi</label>
+        <input type="text" id="settings-card-owner">
+      </div>
+      <div id="settings-success" class="alert alert-success hidden">Saqlandi</div>
+      <button class="btn btn-accent" id="settings-save-btn" data-i18n="admin_settings_save">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/space-background.js"></script>
+<script src="/js/space-sound.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

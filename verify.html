@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emailni tasdiqlash - PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<div class="form-page">
+  <div class="card form-card">
+    <h2 data-i18n="verify_title">Emailni tasdiqlang</h2>
+    <p class="text-dim text-center" data-i18n="verify_subtitle">Emailingizga yuborilgan kodni kiriting</p>
+    <p class="text-center" id="email-display" style="color:var(--accent);font-weight:700;"></p>
+    <div id="error-box" class="alert alert-error hidden"></div>
+    <div id="success-box" class="alert alert-success hidden"></div>
+    <div class="code-inputs">
+      <input maxlength="1" type="text" inputmode="numeric">
+      <input maxlength="1" type="text" inputmode="numeric">
+      <input maxlength="1" type="text" inputmode="numeric">
+      <input maxlength="1" type="text" inputmode="numeric">
+      <input maxlength="1" type="text" inputmode="numeric">
+      <input maxlength="1" type="text" inputmode="numeric">
+    </div>
+    <button class="btn btn-primary btn-block" id="verify-btn" data-i18n="verify_btn">Tasdiqlash</button>
+    <div class="form-footer-link">
+      <a href="#" id="resend-link" data-i18n="verify_resend">Kodni qayta yuborish</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/space-background.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script>
+renderNavbar();
+const params = new URLSearchParams(window.location.search);
+const email = params.get('email') || '';
+document.getElementById('email-display').textContent = email;
+
+const inputs = Array.from(document.querySelectorAll('.code-inputs input'));
+inputs.forEach((inp, idx) => {
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.replace(/[^0-9]/g, '');
+    if (inp.value && idx < inputs.length - 1) inputs[idx + 1].focus();
+  });
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !inp.value && idx > 0) inputs[idx - 1].focus();
+  });
+});
+
+document.getElementById('verify-btn').addEventListener('click', async () => {
+  const code = inputs.map(i => i.value).join('');
+  const errBox = document.getElementById('error-box');
+  errBox.classList.add('hidden');
+  if (code.length !== 6) {
+    errBox.textContent = 'Kodni to\'liq kiriting';
+    errBox.classList.remove('hidden');
+    return;
+  }
+  try {
+    await api('/auth/verify', { method: 'POST', body: { email, code } });
+    window.location.href = '/login.html';
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+});
+
+document.getElementById('resend-link').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const successBox = document.getElementById('success-box');
+  const errBox = document.getElementById('error-box');
+  errBox.classList.add('hidden');
+  try {
+    await api('/auth/resend-code', { method: 'POST', body: { email } });
+    successBox.textContent = 'Kod qayta yuborildi';
+    successBox.classList.remove('hidden');
+  } catch (e2) {
+    errBox.textContent = e2.message;
+    errBox.classList.remove('hidden');
+  }
+});
+</script>
+</body>
+</html>

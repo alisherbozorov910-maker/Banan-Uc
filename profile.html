@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil - PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<div class="container">
+  <h2 class="mt-4" data-i18n="profile_title">Mening profilim</h2>
+
+  <div class="card mt-3">
+    <h3 data-i18n="settings_title">Sozlamalar</h3>
+    <div id="settings-error" class="alert alert-error hidden"></div>
+    <div id="settings-success" class="alert alert-success hidden"></div>
+
+    <div class="field">
+      <label data-i18n="settings_username">Username</label>
+      <input type="text" id="settings-username">
+    </div>
+    <button class="btn btn-ghost" id="username-save-btn" data-i18n="settings_username_save">Username'ni saqlash</button>
+
+    <div class="field mt-4">
+      <label data-i18n="settings_current_password">Joriy parol</label>
+      <input type="password" id="current-password">
+    </div>
+    <div class="field">
+      <label data-i18n="settings_new_password">Yangi parol</label>
+      <input type="password" id="new-password">
+    </div>
+    <button class="btn btn-ghost" id="password-save-btn" data-i18n="settings_password_save">Parolni yangilash</button>
+  </div>
+
+  <div class="profile-grid">
+    <div class="card">
+      <p class="text-dim" data-i18n="profile_balance">Balans</p>
+      <div class="balance-display"><span id="balance-val">0</span> <span data-i18n="sum">so'm</span></div>
+
+      <h3 data-i18n="profile_topup_title">Hisobni to'ldirish</h3>
+      <div class="card-info-box">
+        <div class="text-dim" data-i18n="profile_card_number">Karta raqami</div>
+        <div class="card-num" id="card-number">—</div>
+        <div class="text-dim" data-i18n="profile_card_owner">Egasi</div>
+        <div style="font-weight:700;" id="card-owner">—</div>
+      </div>
+
+      <div id="topup-error" class="alert alert-error hidden"></div>
+      <div id="topup-success" class="alert alert-success hidden"></div>
+
+      <div class="field">
+        <label data-i18n="profile_topup_amount">Summani kiriting (so'm)</label>
+        <input type="number" id="topup-amount" min="1000">
+      </div>
+      <div class="field">
+        <label data-i18n="profile_topup_receipt">Chek rasmini yuklang</label>
+        <input type="file" id="topup-receipt" accept="image/*">
+      </div>
+      <button class="btn btn-accent btn-block" id="topup-submit" data-i18n="profile_topup_submit">Yuborish</button>
+
+      <h3 class="mt-4" data-i18n="profile_topup_history">To'ldirish tarixi</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th data-i18n="profile_topup_amount">Summa</th><th>Status</th><th>Sana</th></tr></thead>
+          <tbody id="topup-history"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 data-i18n="profile_orders_history">Buyurtmalar tarixi</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>UC</th><th>Narx</th><th>Player ID</th><th>Status</th><th>Sana</th></tr></thead>
+          <tbody id="order-history"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/space-background.js"></script>
+<script src="/js/space-sound.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script>
+let user = null;
+
+async function loadProfile() {
+  user = await renderNavbar('profile');
+  if (!user) { window.location.href = '/login.html'; return; }
+  document.getElementById('balance-val').textContent = fmtMoney(user.balance);
+  document.getElementById('settings-username').value = user.username;
+
+  const { card_number, card_owner } = await api('/settings/card');
+  document.getElementById('card-number').textContent = card_number;
+  document.getElementById('card-owner').textContent = card_owner;
+
+  await loadTopups();
+  await loadOrders();
+}
+
+async function loadTopups() {
+  const { topups } = await api('/topup/my');
+  document.getElementById('topup-history').innerHTML = topups.map(t => `
+    <tr>
+      <td>#${t.id}</td>
+      <td>${fmtMoney(t.amount)}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td>${fmtDate(t.created_at)}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="4" class="text-dim text-center">—</td></tr>`;
+}
+
+async function loadOrders() {
+  const { orders } = await api('/orders/my');
+  document.getElementById('order-history').innerHTML = orders.map(o => `
+    <tr>
+      <td>${o.uc_amount} UC</td>
+      <td>${fmtMoney(o.price)}</td>
+      <td>${o.player_id}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td>${fmtDate(o.created_at)}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" class="text-dim text-center">—</td></tr>`;
+}
+
+document.getElementById('topup-submit').addEventListener('click', async () => {
+  const amount = document.getElementById('topup-amount').value;
+  const fileInput = document.getElementById('topup-receipt');
+  const errBox = document.getElementById('topup-error');
+  const okBox = document.getElementById('topup-success');
+  errBox.classList.add('hidden');
+  okBox.classList.add('hidden');
+
+  if (!amount || amount <= 0) {
+    errBox.textContent = 'Summani kiriting';
+    errBox.classList.remove('hidden');
+    return;
+  }
+  if (!fileInput.files[0]) {
+    errBox.textContent = 'Chek rasmini yuklang';
+    errBox.classList.remove('hidden');
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append('amount', amount);
+  fd.append('receipt', fileInput.files[0]);
+
+  try {
+    await api('/topup', { method: 'POST', body: fd });
+    okBox.textContent = 'So\'rov yuborildi, admin tasdiqlashini kuting';
+    okBox.classList.remove('hidden');
+    document.getElementById('topup-amount').value = '';
+    fileInput.value = '';
+    await loadTopups();
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+});
+
+document.getElementById('username-save-btn').addEventListener('click', async () => {
+  const username = document.getElementById('settings-username').value.trim();
+  const errBox = document.getElementById('settings-error');
+  const okBox = document.getElementById('settings-success');
+  errBox.classList.add('hidden');
+  okBox.classList.add('hidden');
+  try {
+    await api('/auth/username', { method: 'PUT', body: { username } });
+    okBox.textContent = 'Username yangilandi';
+    okBox.classList.remove('hidden');
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+});
+
+document.getElementById('password-save-btn').addEventListener('click', async () => {
+  const current_password = document.getElementById('current-password').value;
+  const new_password = document.getElementById('new-password').value;
+  const errBox = document.getElementById('settings-error');
+  const okBox = document.getElementById('settings-success');
+  errBox.classList.add('hidden');
+  okBox.classList.add('hidden');
+  try {
+    await api('/auth/password', { method: 'PUT', body: { current_password, new_password } });
+    okBox.textContent = 'Parol yangilandi';
+    okBox.classList.remove('hidden');
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+});
+
+loadProfile();
+</script>
+</body>
+</html>

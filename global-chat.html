@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global chat - PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<div class="container">
+  <h2 class="mt-4" data-i18n="global_chat_title">Global chat</h2>
+  <p class="text-dim" data-i18n="global_chat_subtitle">Saytdagi barcha foydalanuvchilar bilan suhbatlashing.</p>
+
+  <div class="card" style="max-width:700px;margin:20px auto;">
+    <div id="chat-error" class="alert alert-error hidden"></div>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" maxlength="500" data-i18n-placeholder="support_placeholder" placeholder="Xabaringizni yozing...">
+      <button class="btn btn-primary" id="chat-send" data-i18n="support_send">Yuborish</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/space-background.js"></script>
+<script src="/js/space-sound.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script>
+let currentUserId = null;
+let pollTimer = null;
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderMessages(messages) {
+  const box = document.getElementById('chat-box');
+  const wasAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
+  box.innerHTML = messages.map(m => `
+    <div class="msg ${m.user_id === currentUserId ? 'msg-user' : 'msg-admin'}">
+      <div style="font-weight:700;font-size:11px;opacity:0.75;margin-bottom:2px;">${escapeHtml(m.username)}</div>
+      ${escapeHtml(m.text)}
+      <div class="msg-time">${fmtDate(m.created_at)}</div>
+    </div>
+  `).join('') || `<p class="text-dim text-center">Hozircha xabarlar yo'q. Birinchi bo'lib yozing!</p>`;
+  if (wasAtBottom || messages.length <= 2) box.scrollTop = box.scrollHeight;
+}
+
+async function loadMessages() {
+  try {
+    const { messages } = await api('/global-chat');
+    renderMessages(messages);
+  } catch (e) { /* ignore polling errors */ }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  const errBox = document.getElementById('chat-error');
+  errBox.classList.add('hidden');
+  if (!text) return;
+  try {
+    await api('/global-chat', { method: 'POST', body: { text } });
+    input.value = '';
+    await loadMessages();
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+}
+
+document.getElementById('chat-send').addEventListener('click', sendMessage);
+document.getElementById('chat-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+(async function init() {
+  const user = await renderNavbar();
+  if (!user) { window.location.href = '/login.html'; return; }
+  currentUserId = user.id;
+  await loadMessages();
+  pollTimer = setInterval(loadMessages, 4000);
+})();
+</script>
+</body>
+</html>

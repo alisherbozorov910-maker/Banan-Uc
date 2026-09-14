@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yordam - PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<div class="container">
+  <h2 class="mt-4" data-i18n="support_title">Yordam bo'limi</h2>
+  <p class="text-dim" data-i18n="support_subtitle">Savolingiz bo'lsa, admin bilan bevosita yozishing</p>
+
+  <div class="card" style="max-width:700px;margin:20px auto;">
+    <div class="chat-box" id="chat-box"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" data-i18n-placeholder="support_placeholder" placeholder="Xabaringizni yozing...">
+      <button class="btn btn-primary" id="chat-send" data-i18n="support_send">Yuborish</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/space-background.js"></script>
+<script src="/js/space-sound.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script>
+let pollTimer = null;
+
+function renderMessages(messages) {
+  const box = document.getElementById('chat-box');
+  const wasAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
+  box.innerHTML = messages.map(m => `
+    <div class="msg ${m.sender === 'user' ? 'msg-user' : 'msg-admin'}">
+      ${escapeHtml(m.text)}
+      <div class="msg-time">${fmtDate(m.created_at)}</div>
+    </div>
+  `).join('') || `<p class="text-dim text-center">Hozircha xabarlar yo'q. Birinchi xabarni yozing!</p>`;
+  if (wasAtBottom || messages.length <= 2) box.scrollTop = box.scrollHeight;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function loadMessages() {
+  try {
+    const { messages } = await api('/support/my');
+    renderMessages(messages);
+  } catch (e) { /* ignore */ }
+}
+
+document.getElementById('chat-send').addEventListener('click', sendMessage);
+document.getElementById('chat-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  try {
+    await api('/support/send', { method: 'POST', body: { text } });
+    await loadMessages();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+(async function init() {
+  const user = await renderNavbar('support');
+  if (!user) { window.location.href = '/login.html'; return; }
+  await loadMessages();
+  pollTimer = setInterval(loadMessages, 5000);
+})();
+</script>
+</body>
+</html>
