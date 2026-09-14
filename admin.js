@@ -1,273 +1,195 @@
-let activeThreadUserId = null;
-let threadPollTimer = null;
+const express = require('express');
+const db = require('../config/db');
+const { requireAdmin, signAdminToken } = require('../middleware/auth');
 
-function showAdminError(msg) {
-  const box = document.getElementById('admin-login-error');
-  box.textContent = msg;
-  box.classList.remove('hidden');
-}
+const router = express.Router();
 
-async function checkAdminAuth() {
-  try {
-    await api('/admin/check');
-    document.getElementById('admin-login-view').classList.add('hidden');
-    document.getElementById('admin-dashboard-view').classList.remove('hidden');
-    initDashboard();
-    return true;
-  } catch (e) {
-    document.getElementById('admin-login-view').classList.remove('hidden');
-    document.getElementById('admin-dashboard-view').classList.add('hidden');
-    return false;
+// ---------- Admin auth ----------
+router.post('/login', (req, res) => {
+  const { password } = req.body;
+  const expected = process.env.ADMIN_PASSWORD || 'alisherbek2013';
+  if (password !== expected) {
+    return res.status(401).json({ error: 'Parol noto\'g\'ri' });
   }
-}
-
-document.getElementById('admin-login-btn').addEventListener('click', async () => {
-  const password = document.getElementById('admin-password').value;
-  try {
-    await api('/admin/login', { method: 'POST', body: { password } });
-    await checkAdminAuth();
-  } catch (e) {
-    showAdminError(e.message);
-  }
-});
-document.getElementById('admin-password').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') document.getElementById('admin-login-btn').click();
+  const token = signAdminToken();
+  res.cookie('admin_token', token, { httpOnly: true, sameSite: 'lax', maxAge: 12 * 60 * 60 * 1000 });
+  res.json({ success: true });
 });
 
-document.getElementById('admin-logout-btn').addEventListener('click', async () => {
-  await api('/admin/logout', { method: 'POST' });
-  window.location.reload();
+router.post('/logout', (req, res) => {
+  res.clearCookie('admin_token');
+  res.json({ success: true });
 });
 
-// ---------- Tabs ----------
-document.querySelectorAll('.admin-tab-btn[data-tab]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.admin-tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+router.get('/check', requireAdmin, (req, res) => res.json({ ok: true }));
 
-    if (btn.dataset.tab === 'dashboard') loadSummary();
-    if (btn.dataset.tab === 'packages') loadPackages();
-    if (btn.dataset.tab === 'orders') loadOrders();
-    if (btn.dataset.tab === 'topups') loadTopups();
-    if (btn.dataset.tab === 'users') loadUsers();
-    if (btn.dataset.tab === 'support') loadThreads();
-    if (btn.dataset.tab === 'settings') loadSettings();
-  });
+// ---------- Dashboard summary ----------
+router.get('/summary', requireAdmin, (req, res) => {
+  const usersCount = db.prepare('SELECT COUNT(*) c FROM users WHERE is_verified = 1').get().c;
+  const pendingOrders = db.prepare("SELECT COUNT(*) c FROM orders WHERE status = 'pending'").get().c;
+  const pendingTopups = db.prepare("SELECT COUNT(*) c FROM topups WHERE status = 'pending'").get().c;
+  const unreadMessages = db.prepare("SELECT COUNT(*) c FROM messages WHERE sender = 'user' AND read_by_admin = 0").get().c;
+  res.json({ usersCount, pendingOrders, pendingTopups, unreadMessages });
 });
-
-function initDashboard() {
-  loadSummary();
-}
-
-// ---------- Dashboard ----------
-async function loadSummary() {
-  const s = await api('/admin/summary');
-  document.getElementById('stat-users').textContent = s.usersCount;
-  document.getElementById('stat-orders').textContent = s.pendingOrders;
-  document.getElementById('stat-topups').textContent = s.pendingTopups;
-  document.getElementById('stat-messages').textContent = s.unreadMessages;
-}
-
-// ---------- Packages ----------
-async function loadPackages() {
-  const { packages } = await api('/admin/packages');
-  document.getElementById('packages-table').innerHTML = packages.map(p => `
-    <tr>
-      <td>${p.id}</td>
-      <td>${p.title}</td>
-      <td>${p.uc_amount}</td>
-      <td>${fmtMoney(p.price)}</td>
-      <td>${p.is_active ? '✅' : '❌'}</td>
-      <td class="flex gap-2">
-        <button class="btn btn-ghost btn-sm" onclick="editPackage(${p.id}, ${p.uc_amount}, ${p.price})">✏️</button>
-        <button class="btn btn-ghost btn-sm" onclick="togglePackage(${p.id}, ${p.is_active ? 0 : 1})">${p.is_active ? '⏸' : '▶️'}</button>
-        <button class="btn btn-danger btn-sm" onclick="deletePackage(${p.id})">🗑</button>
-      </td>
-    </tr>
-  `).join('') || `<tr><td colspan="6" class="text-dim text-center">Paketlar yo'q</td></tr>`;
-}
-
-document.getElementById('pkg-add-btn').addEventListener('click', async () => {
-  const title = document.getElementById('pkg-title').value.trim();
-  const uc_amount = document.getElementById('pkg-uc').value;
-  const price = document.getElementById('pkg-price').value;
-  if (!title || !uc_amount || !price) { alert('Barcha maydonlarni to\'ldiring'); return; }
-  await api('/admin/packages', { method: 'POST', body: { title, uc_amount, price } });
-  document.getElementById('pkg-title').value = '';
-  document.getElementById('pkg-uc').value = '';
-  document.getElementById('pkg-price').value = '';
-  loadPackages();
-});
-
-async function editPackage(id, currentUc, currentPrice) {
-  const newUc = prompt('Yangi UC miqdori:', currentUc);
-  if (newUc === null) return;
-  const newPrice = prompt('Yangi narx (so\'m):', currentPrice);
-  if (newPrice === null) return;
-  await api('/admin/packages/' + id, { method: 'PUT', body: { uc_amount: newUc, price: newPrice } });
-  loadPackages();
-}
-
-async function togglePackage(id, newState) {
-  await api('/admin/packages/' + id, { method: 'PUT', body: { is_active: newState } });
-  loadPackages();
-}
-
-async function deletePackage(id) {
-  if (!confirm('Paketni o\'chirishni tasdiqlaysizmi?')) return;
-  await api('/admin/packages/' + id, { method: 'DELETE' });
-  loadPackages();
-}
-
-// ---------- Orders ----------
-async function loadOrders() {
-  const { orders } = await api('/admin/orders');
-  document.getElementById('orders-table').innerHTML = orders.map(o => `
-    <tr>
-      <td>${o.id}</td>
-      <td>${o.username}<br><span class="text-dim">${o.email || '&mdash;'}</span></td>
-      <td>${o.package_title}</td>
-      <td>${o.player_id}</td>
-      <td>${fmtMoney(o.price)}</td>
-      <td>${statusBadge(o.status)}</td>
-      <td>${fmtDate(o.created_at)}</td>
-      <td class="flex gap-2">
-        ${o.status === 'pending' ? `
-          <button class="btn btn-success btn-sm" onclick="updateOrder(${o.id}, 'delivered')">✅</button>
-          <button class="btn btn-danger btn-sm" onclick="updateOrder(${o.id}, 'rejected')">❌</button>
-        ` : '—'}
-      </td>
-    </tr>
-  `).join('') || `<tr><td colspan="8" class="text-dim text-center">Buyurtmalar yo'q</td></tr>`;
-}
-
-async function updateOrder(id, status) {
-  await api('/admin/orders/' + id, { method: 'PUT', body: { status } });
-  loadOrders();
-  loadSummary();
-}
-
-// ---------- Topups ----------
-async function loadTopups() {
-  const { topups } = await api('/admin/topups');
-  document.getElementById('topups-table').innerHTML = topups.map(t => `
-    <tr>
-      <td>${t.id}</td>
-      <td>${t.username}<br><span class="text-dim">${t.email || '&mdash;'}</span></td>
-      <td>${fmtMoney(t.amount)}</td>
-      <td><a href="${t.receipt_path}" target="_blank"><img class="receipt-thumb" src="${t.receipt_path}"></a></td>
-      <td>${statusBadge(t.status)}</td>
-      <td>${fmtDate(t.created_at)}</td>
-      <td class="flex gap-2">
-        ${t.status === 'pending' ? `
-          <button class="btn btn-success btn-sm" onclick="updateTopup(${t.id}, 'approved')">✅</button>
-          <button class="btn btn-danger btn-sm" onclick="updateTopup(${t.id}, 'rejected')">❌</button>
-        ` : '—'}
-      </td>
-    </tr>
-  `).join('') || `<tr><td colspan="7" class="text-dim text-center">So'rovlar yo'q</td></tr>`;
-}
-
-async function updateTopup(id, status) {
-  await api('/admin/topups/' + id, { method: 'PUT', body: { status } });
-  loadTopups();
-  loadSummary();
-}
 
 // ---------- Users ----------
-async function loadUsers() {
-  const { users } = await api('/admin/users');
-  document.getElementById('users-table').innerHTML = users.map(u => `
-    <tr>
-      <td>${u.id}</td>
-      <td>${u.username}</td>
-      <td>${u.email}</td>
-      <td>${fmtMoney(u.balance)}</td>
-      <td>${u.is_verified ? '✅' : '❌'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="adjustBalance(${u.id})">💰 Balans</button></td>
-    </tr>
-  `).join('') || `<tr><td colspan="6" class="text-dim text-center">Foydalanuvchilar yo'q</td></tr>`;
-}
-
-async function adjustBalance(userId) {
-  const amount = prompt('Qo\'shiladigan (yoki ayiriladigan, minus bilan) summa:');
-  if (!amount) return;
-  await api('/admin/users/' + userId + '/balance', { method: 'PUT', body: { amount } });
-  loadUsers();
-}
-
-// ---------- Support ----------
-async function loadThreads() {
-  const { threads } = await api('/admin/support/threads');
-  document.getElementById('thread-list').innerHTML = threads.map(t => `
-    <div class="thread-item ${t.user_id === activeThreadUserId ? 'active' : ''}" onclick="openThread(${t.user_id}, '${escapeAttr(t.username)}')">
-      <div class="name">${t.username} ${t.unread > 0 ? `<span class="unread-dot">${t.unread}</span>` : ''}</div>
-      <div class="preview">${escapeAttr(t.last_message || '')}</div>
-    </div>
-  `).join('') || `<p class="text-dim text-center">Hozircha xabarlar yo'q</p>`;
-}
-
-function escapeAttr(str) {
-  return (str || '').replace(/'/g, "\\'").replace(/</g, '&lt;');
-}
-
-async function openThread(userId, name) {
-  activeThreadUserId = userId;
-  document.getElementById('chat-header').textContent = name;
-  await loadThreadMessages();
-  loadThreads();
-  if (threadPollTimer) clearInterval(threadPollTimer);
-  threadPollTimer = setInterval(loadThreadMessages, 5000);
-}
-
-async function loadThreadMessages() {
-  if (!activeThreadUserId) return;
-  const { messages } = await api('/admin/support/' + activeThreadUserId);
-  const box = document.getElementById('admin-chat-box');
-  box.innerHTML = messages.map(m => `
-    <div class="msg ${m.sender === 'admin' ? 'msg-user' : 'msg-admin'}">
-      ${escapeAttr(m.text)}
-      <div class="msg-time">${fmtDate(m.created_at)}</div>
-    </div>
-  `).join('');
-  box.scrollTop = box.scrollHeight;
-}
-
-document.getElementById('admin-chat-send').addEventListener('click', sendAdminReply);
-document.getElementById('admin-chat-input').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') sendAdminReply();
+router.get('/users', requireAdmin, (req, res) => {
+  const users = db.prepare('SELECT id, username, email, is_verified, balance, created_at FROM users ORDER BY created_at DESC').all();
+  res.json({ users });
 });
 
-async function sendAdminReply() {
-  if (!activeThreadUserId) { alert('Avval suhbatni tanlang'); return; }
-  const input = document.getElementById('admin-chat-input');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  await api('/admin/support/' + activeThreadUserId + '/reply', { method: 'POST', body: { text } });
-  await loadThreadMessages();
-}
-
-// ---------- Settings ----------
-async function loadSettings() {
-  const { settings } = await api('/admin/settings');
-  document.getElementById('settings-card-number').value = settings.card_number || '';
-  document.getElementById('settings-card-owner').value = settings.card_owner || '';
-}
-
-document.getElementById('settings-save-btn').addEventListener('click', async () => {
-  const card_number = document.getElementById('settings-card-number').value.trim();
-  const card_owner = document.getElementById('settings-card-owner').value.trim();
-  await api('/admin/settings', { method: 'PUT', body: { card_number, card_owner } });
-  const box = document.getElementById('settings-success');
-  box.classList.remove('hidden');
-  setTimeout(() => box.classList.add('hidden'), 2000);
+router.put('/users/:id/balance', requireAdmin, (req, res) => {
+  const { amount } = req.body; // amount to add (can be negative)
+  const delta = parseInt(amount, 10);
+  if (!delta) return res.status(400).json({ error: 'Summani kiriting' });
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+  if (!user) return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
+  db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(delta, user.id);
+  res.json({ success: true });
 });
 
-// ---------- Init ----------
-(async function init() {
-  await renderNavbar('admin');
-  await checkAdminAuth();
-})();
+// ---------- Packages CRUD ----------
+router.get('/packages', requireAdmin, (req, res) => {
+  const packages = db.prepare('SELECT * FROM packages ORDER BY sort_order ASC, id ASC').all();
+  res.json({ packages });
+});
+
+router.post('/packages', requireAdmin, (req, res) => {
+  const { title, uc_amount, price, sort_order } = req.body;
+  if (!title || !uc_amount || !price) return res.status(400).json({ error: 'Barcha maydonlarni to\'ldiring' });
+  const info = db.prepare(
+    'INSERT INTO packages (title, uc_amount, price, is_active, sort_order) VALUES (?, ?, ?, 1, ?)'
+  ).run(title, parseInt(uc_amount, 10), parseInt(price, 10), parseInt(sort_order || 0, 10));
+  res.json({ success: true, id: info.lastInsertRowid });
+});
+
+router.put('/packages/:id', requireAdmin, (req, res) => {
+  const { title, uc_amount, price, is_active, sort_order } = req.body;
+  const pkg = db.prepare('SELECT * FROM packages WHERE id = ?').get(req.params.id);
+  if (!pkg) return res.status(404).json({ error: 'Paket topilmadi' });
+  db.prepare(
+    'UPDATE packages SET title = ?, uc_amount = ?, price = ?, is_active = ?, sort_order = ? WHERE id = ?'
+  ).run(
+    title ?? pkg.title,
+    uc_amount != null ? parseInt(uc_amount, 10) : pkg.uc_amount,
+    price != null ? parseInt(price, 10) : pkg.price,
+    is_active != null ? (is_active ? 1 : 0) : pkg.is_active,
+    sort_order != null ? parseInt(sort_order, 10) : pkg.sort_order,
+    pkg.id
+  );
+  res.json({ success: true });
+});
+
+router.delete('/packages/:id', requireAdmin, (req, res) => {
+  db.prepare('DELETE FROM packages WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
+});
+
+// ---------- Orders ----------
+router.get('/orders', requireAdmin, (req, res) => {
+  const orders = db.prepare(`
+    SELECT o.*, u.username, u.email
+    FROM orders o JOIN users u ON u.id = o.user_id
+    ORDER BY o.created_at DESC
+  `).all();
+  res.json({ orders });
+});
+
+router.put('/orders/:id', requireAdmin, (req, res) => {
+  const { status, admin_note } = req.body; // 'delivered' | 'rejected'
+  const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(req.params.id);
+  if (!order) return res.status(404).json({ error: 'Buyurtma topilmadi' });
+  if (!['delivered', 'rejected', 'pending'].includes(status)) {
+    return res.status(400).json({ error: 'Status noto\'g\'ri' });
+  }
+
+  const tx = db.transaction(() => {
+    if (status === 'rejected' && order.status !== 'rejected') {
+      // refund balance
+      db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(order.price, order.user_id);
+    }
+    db.prepare('UPDATE orders SET status = ?, admin_note = ?, updated_at = ? WHERE id = ?')
+      .run(status, admin_note || null, Date.now(), order.id);
+  });
+  tx();
+  res.json({ success: true });
+});
+
+// ---------- Topups ----------
+router.get('/topups', requireAdmin, (req, res) => {
+  const topups = db.prepare(`
+    SELECT t.*, u.username, u.email
+    FROM topups t JOIN users u ON u.id = t.user_id
+    ORDER BY t.created_at DESC
+  `).all();
+  res.json({ topups });
+});
+
+router.put('/topups/:id', requireAdmin, (req, res) => {
+  const { status, admin_note } = req.body; // 'approved' | 'rejected'
+  const topup = db.prepare('SELECT * FROM topups WHERE id = ?').get(req.params.id);
+  if (!topup) return res.status(404).json({ error: 'So\'rov topilmadi' });
+  if (!['approved', 'rejected', 'pending'].includes(status)) {
+    return res.status(400).json({ error: 'Status noto\'g\'ri' });
+  }
+  if (topup.status !== 'pending') {
+    return res.status(400).json({ error: 'Bu so\'rov allaqachon ko\'rib chiqilgan' });
+  }
+
+  const tx = db.transaction(() => {
+    if (status === 'approved') {
+      db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(topup.amount, topup.user_id);
+    }
+    db.prepare('UPDATE topups SET status = ?, admin_note = ?, updated_at = ? WHERE id = ?')
+      .run(status, admin_note || null, Date.now(), topup.id);
+  });
+  tx();
+  res.json({ success: true });
+});
+
+// ---------- Settings (card number) ----------
+router.get('/settings', requireAdmin, (req, res) => {
+  const rows = db.prepare('SELECT key, value FROM settings').all();
+  const settings = {};
+  rows.forEach(r => settings[r.key] = r.value);
+  res.json({ settings });
+});
+
+router.put('/settings', requireAdmin, (req, res) => {
+  const { card_number, card_owner } = req.body;
+  const upsert = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
+  if (card_number != null) upsert.run('card_number', card_number);
+  if (card_owner != null) upsert.run('card_owner', card_owner);
+  res.json({ success: true });
+});
+
+// ---------- Support inbox ----------
+router.get('/support/threads', requireAdmin, (req, res) => {
+  const threads = db.prepare(`
+    SELECT u.id as user_id, u.username, u.email,
+      (SELECT text FROM messages m WHERE m.user_id = u.id ORDER BY m.created_at DESC LIMIT 1) as last_message,
+      (SELECT created_at FROM messages m WHERE m.user_id = u.id ORDER BY m.created_at DESC LIMIT 1) as last_time,
+      (SELECT COUNT(*) FROM messages m WHERE m.user_id = u.id AND m.sender = 'user' AND m.read_by_admin = 0) as unread
+    FROM users u
+    WHERE EXISTS (SELECT 1 FROM messages m WHERE m.user_id = u.id)
+    ORDER BY last_time DESC
+  `).all();
+  res.json({ threads });
+});
+
+router.get('/support/:userId', requireAdmin, (req, res) => {
+  db.prepare("UPDATE messages SET read_by_admin = 1 WHERE user_id = ? AND sender = 'user'").run(req.params.userId);
+  const messages = db.prepare('SELECT * FROM messages WHERE user_id = ? ORDER BY created_at ASC').all(req.params.userId);
+  res.json({ messages });
+});
+
+router.post('/support/:userId/reply', requireAdmin, (req, res) => {
+  const { text } = req.body;
+  if (!text || !text.trim()) return res.status(400).json({ error: 'Xabar bo\'sh bo\'lmasin' });
+  db.prepare(
+    "INSERT INTO messages (user_id, sender, text, read_by_admin, read_by_user, created_at) VALUES (?, 'admin', ?, 1, 0, ?)"
+  ).run(req.params.userId, text.trim(), Date.now());
+  res.json({ success: true });
+});
+
+module.exports = router;
