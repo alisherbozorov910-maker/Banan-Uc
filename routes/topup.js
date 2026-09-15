@@ -14,6 +14,11 @@ router.get('/settings/card', (req, res) => {
   });
 });
 
+router.get('/settings/music', (req, res) => {
+  const track = db.prepare('SELECT filename FROM music_tracks WHERE is_active = 1 LIMIT 1').get();
+  res.json({ url: track ? track.filename : null });
+});
+
 router.post('/topup', requireAuth, upload.single('receipt'), (req, res) => {
   const { amount } = req.body;
   const amt = parseInt(amount, 10);

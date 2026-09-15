@@ -38,9 +38,13 @@
 
   "menu_title": "Меню",
   "menu_profile": "Профиль",
+  "menu_leaderboard": "Топ рейтинг",
   "menu_global_chat": "Общий чат",
   "menu_language": "Язык",
   "menu_sound": "Космический звук",
+
+  "leaderboard_title": "Топ рейтинг",
+  "leaderboard_subtitle": "10 пользователей, купивших больше всего UC",
 
   "global_chat_title": "Общий чат",
   "global_chat_subtitle": "Общайтесь со всеми пользователями сайта. Будьте уважительны — ругательства запрещены.",
@@ -84,6 +88,11 @@
   "admin_tab_users": "Пользователи",
   "admin_tab_support": "Поддержка",
   "admin_tab_settings": "Настройки",
+  "admin_tab_music": "Музыка",
+
+  "admin_music_upload": "Загрузить новый трек",
+  "admin_music_upload_btn": "Загрузить",
+  "admin_music_list": "Загруженные треки",
 
   "admin_stat_users": "Пользователи",
   "admin_stat_pending_orders": "Заказы в ожидании",

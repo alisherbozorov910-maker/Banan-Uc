@@ -45,4 +45,17 @@ router.get('/orders/my', requireAuth, (req, res) => {
   res.json({ orders });
 });
 
+router.get('/leaderboard', requireAuth, (req, res) => {
+  const rows = db.prepare(`
+    SELECT u.username, SUM(o.uc_amount) as total_uc, COUNT(o.id) as order_count
+    FROM orders o
+    JOIN users u ON u.id = o.user_id
+    WHERE o.status = 'delivered'
+    GROUP BY o.user_id
+    ORDER BY total_uc DESC
+    LIMIT 10
+  `).all();
+  res.json({ leaderboard: rows });
+});
+
 module.exports = router;

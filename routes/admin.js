@@ -1,6 +1,9 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const db = require('../config/db');
 const { requireAdmin, signAdminToken } = require('../middleware/auth');
+const uploadMusic = require('../utils/musicUpload');
 
 const router = express.Router();
 
@@ -189,6 +192,41 @@ router.post('/support/:userId/reply', requireAdmin, (req, res) => {
   db.prepare(
     "INSERT INTO messages (user_id, sender, text, read_by_admin, read_by_user, created_at) VALUES (?, 'admin', ?, 1, 0, ?)"
   ).run(req.params.userId, text.trim(), Date.now());
+  res.json({ success: true });
+});
+
+// ---------- Fon musiqasi ----------
+router.get('/music', requireAdmin, (req, res) => {
+  const tracks = db.prepare('SELECT * FROM music_tracks ORDER BY created_at DESC').all();
+  res.json({ tracks });
+});
+
+router.post('/music', requireAdmin, uploadMusic.single('track'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Audio fayl yuklanmadi' });
+  const relPath = '/uploads/music/' + req.file.filename;
+  const info = db.prepare(
+    'INSERT INTO music_tracks (filename, original_name, is_active, created_at) VALUES (?, ?, 0, ?)'
+  ).run(relPath, req.file.originalname, Date.now());
+  res.json({ success: true, id: info.lastInsertRowid });
+});
+
+router.put('/music/:id/activate', requireAdmin, (req, res) => {
+  const track = db.prepare('SELECT * FROM music_tracks WHERE id = ?').get(req.params.id);
+  if (!track) return res.status(404).json({ error: 'Trek topilmadi' });
+  const tx = db.transaction(() => {
+    db.prepare('UPDATE music_tracks SET is_active = 0').run();
+    db.prepare('UPDATE music_tracks SET is_active = 1 WHERE id = ?').run(track.id);
+  });
+  tx();
+  res.json({ success: true });
+});
+
+router.delete('/music/:id', requireAdmin, (req, res) => {
+  const track = db.prepare('SELECT * FROM music_tracks WHERE id = ?').get(req.params.id);
+  if (!track) return res.status(404).json({ error: 'Trek topilmadi' });
+  const filePath = path.join(__dirname, '..', track.filename);
+  db.prepare('DELETE FROM music_tracks WHERE id = ?').run(track.id);
+  fs.unlink(filePath, () => {});
   res.json({ success: true });
 });
 

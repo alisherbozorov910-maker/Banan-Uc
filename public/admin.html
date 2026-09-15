@@ -31,6 +31,7 @@
     <button class="admin-tab-btn" data-tab="users" data-i18n="admin_tab_users">Foydalanuvchilar</button>
     <button class="admin-tab-btn" data-tab="support" data-i18n="admin_tab_support">Yordam</button>
     <button class="admin-tab-btn" data-tab="settings" data-i18n="admin_tab_settings">Sozlamalar</button>
+    <button class="admin-tab-btn" data-tab="music" data-i18n="admin_tab_music">Musiqa</button>
     <button class="admin-tab-btn btn-danger" id="admin-logout-btn" style="margin-left:auto;">🚪</button>
   </div>
 
@@ -129,6 +130,21 @@
       </div>
       <div id="settings-success" class="alert alert-success hidden">Saqlandi</div>
       <button class="btn btn-accent" id="settings-save-btn" data-i18n="admin_settings_save">Saqlash</button>
+    </div>
+  </div>
+
+  <!-- Music -->
+  <div class="admin-panel" id="panel-music">
+    <div class="card" style="max-width:600px;">
+      <h3 data-i18n="admin_music_upload">Yangi trek yuklash</h3>
+      <div id="music-error" class="alert alert-error hidden"></div>
+      <div class="field">
+        <input type="file" id="music-file-input" accept="audio/mpeg,audio/wav,audio/ogg,.mp3,.wav,.ogg">
+      </div>
+      <button class="btn btn-accent" id="music-upload-btn" data-i18n="admin_music_upload_btn">Yuklash</button>
+
+      <h3 class="mt-4" data-i18n="admin_music_list">Yuklangan treklar</h3>
+      <div id="music-list"></div>
     </div>
   </div>
 </div>

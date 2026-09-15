@@ -38,9 +38,13 @@
 
   "menu_title": "Menyu",
   "menu_profile": "Profil",
+  "menu_leaderboard": "Top reyting",
   "menu_global_chat": "Global chat",
   "menu_language": "Til",
   "menu_sound": "Kosmik ovoz",
+
+  "leaderboard_title": "Top reyting",
+  "leaderboard_subtitle": "Eng ko'p UC xarid qilgan 10 ta foydalanuvchi",
 
   "global_chat_title": "Global chat",
   "global_chat_subtitle": "Saytdagi barcha foydalanuvchilar bilan suhbatlashing. Hurmatli bo'ling — so'kinish taqiqlangan.",
@@ -84,6 +88,11 @@
   "admin_tab_users": "Foydalanuvchilar",
   "admin_tab_support": "Yordam",
   "admin_tab_settings": "Sozlamalar",
+  "admin_tab_music": "Musiqa",
+
+  "admin_music_upload": "Yangi trek yuklash",
+  "admin_music_upload_btn": "Yuklash",
+  "admin_music_list": "Yuklangan treklar",
 
   "admin_stat_users": "Foydalanuvchilar",
   "admin_stat_pending_orders": "Kutilayotgan buyurtmalar",
