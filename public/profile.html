@@ -24,6 +24,12 @@
     <button class="btn btn-ghost" id="username-save-btn" data-i18n="settings_username_save">Username'ni saqlash</button>
 
     <div class="field mt-4">
+      <label data-i18n="settings_email">Email (ixtiyoriy, parol tiklash uchun)</label>
+      <input type="email" id="settings-email" placeholder="misol@gmail.com">
+    </div>
+    <button class="btn btn-ghost" id="email-save-btn" data-i18n="settings_email_save">Emailni saqlash</button>
+
+    <div class="field mt-4">
       <label data-i18n="settings_current_password">Joriy parol</label>
       <input type="password" id="current-password">
     </div>
@@ -46,7 +52,24 @@ async function loadProfile() {
   user = await renderNavbar('profile');
   if (!user) { window.location.href = '/login.html'; return; }
   document.getElementById('settings-username').value = user.username;
+  document.getElementById('settings-email').value = user.email || '';
 }
+
+document.getElementById('email-save-btn').addEventListener('click', async () => {
+  const email = document.getElementById('settings-email').value.trim();
+  const errBox = document.getElementById('settings-error');
+  const okBox = document.getElementById('settings-success');
+  errBox.classList.add('hidden');
+  okBox.classList.add('hidden');
+  try {
+    await api('/auth/email', { method: 'PUT', body: { email } });
+    okBox.textContent = 'Email saqlandi';
+    okBox.classList.remove('hidden');
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+});
 
 document.getElementById('username-save-btn').addEventListener('click', async () => {
   const username = document.getElementById('settings-username').value.trim();

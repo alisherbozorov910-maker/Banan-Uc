@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const { requireAdmin, signAdminToken } = require('../middleware/auth');
 const uploadMusic = require('../utils/musicUpload');
@@ -49,6 +50,18 @@ router.put('/users/:id/balance', requireAdmin, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
   if (!user) return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
   db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(delta, user.id);
+  res.json({ success: true });
+});
+
+router.put('/users/:id/password', requireAdmin, (req, res) => {
+  const { new_password } = req.body;
+  if (!new_password || new_password.length < 6) {
+    return res.status(400).json({ error: 'Yangi parol kamida 6 ta belgidan iborat bo\'lishi kerak' });
+  }
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+  if (!user) return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
+  const hash = bcrypt.hashSync(new_password.toLowerCase(), 10);
+  db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hash, user.id);
   res.json({ success: true });
 });
 

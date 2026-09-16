@@ -61,6 +61,8 @@
   "settings_title": "Sozlamalar",
   "settings_username": "Username",
   "settings_username_save": "Username'ni saqlash",
+  "settings_email": "Email (ixtiyoriy, parol tiklash uchun)",
+  "settings_email_save": "Emailni saqlash",
   "settings_current_password": "Joriy parol",
   "settings_new_password": "Yangi parol",
   "settings_password_save": "Parolni yangilash",

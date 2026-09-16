@@ -92,4 +92,28 @@ router.put('/password', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+// ---------- Ixtiyoriy email qo'shish (parol tiklash uchun, tasdiqlash kodisiz) ----------
+router.put('/email', requireAuth, (req, res) => {
+  const { email } = req.body;
+  const trimmed = (email || '').trim().toLowerCase();
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!trimmed) {
+    // Bo'sh yuborilsa - emailni o'chirib qo'yamiz
+    db.prepare('UPDATE users SET email = NULL WHERE id = ?').run(req.user.id);
+    return res.json({ success: true, email: null });
+  }
+
+  if (!EMAIL_RE.test(trimmed)) {
+    return res.status(400).json({ error: 'Email manzil noto\'g\'ri' });
+  }
+  const existing = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(trimmed, req.user.id);
+  if (existing) {
+    return res.status(409).json({ error: 'Bu email boshqa hisobga bog\'langan' });
+  }
+
+  db.prepare('UPDATE users SET email = ? WHERE id = ?').run(trimmed, req.user.id);
+  res.json({ success: true, email: trimmed });
+});
+
 module.exports = router;

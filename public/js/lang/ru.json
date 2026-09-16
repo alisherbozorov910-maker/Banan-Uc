@@ -61,6 +61,8 @@
   "settings_title": "Настройки",
   "settings_username": "Имя пользователя",
   "settings_username_save": "Сохранить имя пользователя",
+  "settings_email": "Email (необязательно, для восстановления пароля)",
+  "settings_email_save": "Сохранить email",
   "settings_current_password": "Текущий пароль",
   "settings_new_password": "Новый пароль",
   "settings_password_save": "Обновить пароль",

@@ -188,7 +188,10 @@ async function loadUsers() {
       <td>${u.email}</td>
       <td>${fmtMoney(u.balance)}</td>
       <td>${u.is_verified ? '✅' : '❌'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="adjustBalance(${u.id})">💰 Balans</button></td>
+      <td class="flex gap-2">
+        <button class="btn btn-ghost btn-sm" onclick="adjustBalance(${u.id})">💰 Balans</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetUserPassword(${u.id})">🔑 Parol</button>
+      </td>
     </tr>
   `).join('') || `<tr><td colspan="6" class="text-dim text-center">Foydalanuvchilar yo'q</td></tr>`;
 }
@@ -198,6 +201,17 @@ async function adjustBalance(userId) {
   if (!amount) return;
   await api('/admin/users/' + userId + '/balance', { method: 'PUT', body: { amount } });
   loadUsers();
+}
+
+async function resetUserPassword(userId) {
+  const newPassword = prompt('Foydalanuvchi uchun yangi parol kiriting (kamida 6 belgi):');
+  if (!newPassword) return;
+  try {
+    await api('/admin/users/' + userId + '/password', { method: 'PUT', body: { new_password: newPassword } });
+    alert('Parol muvaffaqiyatli yangilandi');
+  } catch (e) {
+    alert(e.message);
+  }
 }
 
 // ---------- Support ----------
