@@ -79,6 +79,8 @@ async function renderNavbar(activePage) {
             <div class="side-menu-username">👤 ${user.username}</div>
           </div>
           <a href="/profile.html" class="side-menu-item" data-i18n="menu_profile">Profil</a>
+          <a href="/account.html" class="side-menu-item" data-i18n="menu_account">Hisob</a>
+          <a href="/orders.html" class="side-menu-item" data-i18n="menu_orders">Buyurtmalar tarixi</a>
           <a href="/leaderboard.html" class="side-menu-item" data-i18n="menu_leaderboard">Top reyting</a>
           <a href="/global-chat.html" class="side-menu-item" data-i18n="menu_global_chat">Global chat</a>
         ` : `

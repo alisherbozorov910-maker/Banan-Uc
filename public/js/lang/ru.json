@@ -38,10 +38,16 @@
 
   "menu_title": "Меню",
   "menu_profile": "Профиль",
+  "menu_account": "Счёт",
+  "menu_orders": "История заказов",
   "menu_leaderboard": "Топ рейтинг",
   "menu_global_chat": "Общий чат",
   "menu_language": "Язык",
   "menu_sound": "Космический звук",
+
+  "orders_title": "История заказов",
+  "orders_subtitle": "UC заказы, отправленные на ваш PUBG аккаунт",
+  "account_title": "Счёт",
 
   "leaderboard_title": "Топ рейтинг",
   "leaderboard_subtitle": "10 пользователей, купивших больше всего UC",

@@ -23,13 +23,6 @@
     </div>
     <button class="btn btn-primary btn-block" id="login-btn" data-i18n="login_btn">Kirish</button>
 
-    <div class="flex items-center gap-2 mt-3" style="color:var(--text-dim);font-size:12px;">
-      <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
-      <span>yoki</span>
-      <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
-    </div>
-    <div id="google-btn-container" class="mt-3" style="display:flex;justify-content:center;"></div>
-
     <div class="form-footer-link">
       <span data-i18n="login_no_account">Hisobingiz yo'qmi?</span>
       <a href="/register.html" data-i18n="login_register_link">Ro'yxatdan o'tish</a>
@@ -37,15 +30,12 @@
   </div>
 </div>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="/js/space-background.js"></script>
 <script src="/js/space-sound.js"></script>
 <script src="/js/i18n.js"></script>
 <script src="/js/common.js"></script>
-<script src="/js/google-auth.js"></script>
 <script>
 renderNavbar('login');
-initGoogleSignIn('google-btn-container');
 
 document.getElementById('login-btn').addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();

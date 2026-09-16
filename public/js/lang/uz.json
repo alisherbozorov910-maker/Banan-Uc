@@ -38,10 +38,16 @@
 
   "menu_title": "Menyu",
   "menu_profile": "Profil",
+  "menu_account": "Hisob",
+  "menu_orders": "Buyurtmalar tarixi",
   "menu_leaderboard": "Top reyting",
   "menu_global_chat": "Global chat",
   "menu_language": "Til",
   "menu_sound": "Kosmik ovoz",
+
+  "orders_title": "Buyurtmalar tarixi",
+  "orders_subtitle": "PUBG akkauntingizga yuborilgan UC buyurtmalari",
+  "account_title": "Hisob",
 
   "leaderboard_title": "Top reyting",
   "leaderboard_subtitle": "Eng ko'p UC xarid qilgan 10 ta foydalanuvchi",

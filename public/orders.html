@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buyurtmalar tarixi - PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<div class="container">
+  <h2 class="mt-4" data-i18n="orders_title">Buyurtmalar tarixi</h2>
+  <p class="text-dim" data-i18n="orders_subtitle">PUBG akkauntingizga yuborilgan UC buyurtmalari</p>
+
+  <div class="card mt-3">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>UC</th><th>Narx</th><th>Player ID</th><th>Status</th><th>Sana</th></tr></thead>
+        <tbody id="order-history"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="/js/space-background.js"></script>
+<script src="/js/space-sound.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script>
+async function loadOrders() {
+  const user = await renderNavbar('orders');
+  if (!user) { window.location.href = '/login.html'; return; }
+
+  const { orders } = await api('/orders/my');
+  document.getElementById('order-history').innerHTML = orders.map(o => `
+    <tr>
+      <td>${o.uc_amount} UC</td>
+      <td>${fmtMoney(o.price)}</td>
+      <td>${o.player_id}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td>${fmtDate(o.created_at)}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" class="text-dim text-center">Hozircha buyurtma yo'q</td></tr>`;
+}
+
+loadOrders();
+</script>
+</body>
+</html>
