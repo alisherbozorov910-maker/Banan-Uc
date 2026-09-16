@@ -4,6 +4,7 @@ const fs = require('fs');
 const db = require('../config/db');
 const { requireAdmin, signAdminToken } = require('../middleware/auth');
 const uploadMusic = require('../utils/musicUpload');
+const uploadNewsImage = require('../utils/newsImageUpload');
 
 const router = express.Router();
 
@@ -227,6 +228,35 @@ router.delete('/music/:id', requireAdmin, (req, res) => {
   const filePath = path.join(__dirname, '..', track.filename);
   db.prepare('DELETE FROM music_tracks WHERE id = ?').run(track.id);
   fs.unlink(filePath, () => {});
+  res.json({ success: true });
+});
+
+// ---------- Yangiliklar ----------
+router.get('/news', requireAdmin, (req, res) => {
+  const news = db.prepare('SELECT * FROM news ORDER BY created_at DESC').all();
+  res.json({ news });
+});
+
+router.post('/news', requireAdmin, uploadNewsImage.single('image'), (req, res) => {
+  const { description } = req.body;
+  if (!description || !description.trim()) {
+    return res.status(400).json({ error: 'Tafsif kiritilishi shart' });
+  }
+  const imagePath = req.file ? '/uploads/news/' + req.file.filename : null;
+  const info = db.prepare(
+    'INSERT INTO news (image_path, description, created_at) VALUES (?, ?, ?)'
+  ).run(imagePath, description.trim(), Date.now());
+  res.json({ success: true, id: info.lastInsertRowid });
+});
+
+router.delete('/news/:id', requireAdmin, (req, res) => {
+  const item = db.prepare('SELECT * FROM news WHERE id = ?').get(req.params.id);
+  if (!item) return res.status(404).json({ error: 'Yangilik topilmadi' });
+  db.prepare('DELETE FROM news WHERE id = ?').run(item.id);
+  if (item.image_path) {
+    const filePath = path.join(__dirname, '..', item.image_path);
+    fs.unlink(filePath, () => {});
+  }
   res.json({ success: true });
 });
 

@@ -28,7 +28,7 @@ router.post('/register', (req, res) => {
       return res.status(409).json({ error: 'Bu username band, boshqasini tanlang' });
     }
 
-    const hash = bcrypt.hashSync(password, 10);
+    const hash = bcrypt.hashSync(password.toLowerCase(), 10);
     const info = db.prepare(
       'INSERT INTO users (username, password, is_verified, balance, created_at) VALUES (?, ?, 1, 0, ?)'
     ).run(username, hash, Date.now());
@@ -48,7 +48,7 @@ router.post('/login', (req, res) => {
   const { username, password } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE username = ?').get((username || '').trim());
   if (!user) return res.status(401).json({ error: 'Username yoki parol noto\'g\'ri' });
-  if (!bcrypt.compareSync(password || '', user.password)) {
+  if (!bcrypt.compareSync((password || '').toLowerCase(), user.password)) {
     return res.status(401).json({ error: 'Username yoki parol noto\'g\'ri' });
   }
   const token = signUserToken(user);
@@ -84,10 +84,10 @@ router.put('/password', requireAuth, (req, res) => {
     return res.status(400).json({ error: 'Yangi parol kamida 6 ta belgidan iborat bo\'lishi kerak' });
   }
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
-  if (!bcrypt.compareSync(current_password || '', user.password)) {
+  if (!bcrypt.compareSync((current_password || '').toLowerCase(), user.password)) {
     return res.status(401).json({ error: 'Joriy parol noto\'g\'ri' });
   }
-  const hash = bcrypt.hashSync(new_password, 10);
+  const hash = bcrypt.hashSync(new_password.toLowerCase(), 10);
   db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hash, user.id);
   res.json({ success: true });
 });

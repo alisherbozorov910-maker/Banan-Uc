@@ -86,6 +86,13 @@ CREATE TABLE IF NOT EXISTS music_tracks (
   created_at INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS news (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  image_path TEXT,
+  description TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT

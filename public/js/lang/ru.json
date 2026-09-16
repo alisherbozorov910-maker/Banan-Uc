@@ -38,12 +38,15 @@
 
   "menu_title": "Меню",
   "menu_profile": "Профиль",
+  "menu_news": "Новости",
   "menu_account": "Счёт",
   "menu_orders": "История заказов",
   "menu_leaderboard": "Топ рейтинг",
   "menu_global_chat": "Общий чат",
   "menu_language": "Язык",
   "menu_sound": "Фоновая музыка",
+
+  "news_title": "Новости",
 
   "orders_title": "История заказов",
   "orders_subtitle": "UC заказы, отправленные на ваш PUBG аккаунт",
@@ -95,10 +98,17 @@
   "admin_tab_support": "Поддержка",
   "admin_tab_settings": "Настройки",
   "admin_tab_music": "Музыка",
+  "admin_tab_news": "Новости",
 
   "admin_music_upload": "Загрузить новый трек",
   "admin_music_upload_btn": "Загрузить",
   "admin_music_list": "Загруженные треки",
+
+  "admin_news_add": "Добавить новость",
+  "admin_news_image": "Изображение (необязательно)",
+  "admin_news_description": "Описание",
+  "admin_news_add_btn": "Добавить",
+  "admin_news_list": "Список новостей",
 
   "admin_stat_users": "Пользователи",
   "admin_stat_pending_orders": "Заказы в ожидании",

@@ -32,6 +32,7 @@
     <button class="admin-tab-btn" data-tab="support" data-i18n="admin_tab_support">Yordam</button>
     <button class="admin-tab-btn" data-tab="settings" data-i18n="admin_tab_settings">Sozlamalar</button>
     <button class="admin-tab-btn" data-tab="music" data-i18n="admin_tab_music">Musiqa</button>
+    <button class="admin-tab-btn" data-tab="news" data-i18n="admin_tab_news">Yangiliklar</button>
     <button class="admin-tab-btn btn-danger" id="admin-logout-btn" style="margin-left:auto;">🚪</button>
   </div>
 
@@ -145,6 +146,26 @@
 
       <h3 class="mt-4" data-i18n="admin_music_list">Yuklangan treklar</h3>
       <div id="music-list"></div>
+    </div>
+  </div>
+
+  <!-- News -->
+  <div class="admin-panel" id="panel-news">
+    <div class="card" style="max-width:600px;">
+      <h3 data-i18n="admin_news_add">Yangi yangilik qo'shish</h3>
+      <div id="news-error" class="alert alert-error hidden"></div>
+      <div class="field">
+        <label data-i18n="admin_news_image">Rasm (ixtiyoriy)</label>
+        <input type="file" id="news-image-input" accept="image/*">
+      </div>
+      <div class="field">
+        <label data-i18n="admin_news_description">Tafsif</label>
+        <textarea id="news-description-input" rows="4"></textarea>
+      </div>
+      <button class="btn btn-accent" id="news-add-btn" data-i18n="admin_news_add_btn">Qo'shish</button>
+
+      <h3 class="mt-4" data-i18n="admin_news_list">Yangiliklar ro'yxati</h3>
+      <div id="news-list-admin"></div>
     </div>
   </div>
 </div>

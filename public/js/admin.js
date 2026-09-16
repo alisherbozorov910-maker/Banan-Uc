@@ -55,6 +55,7 @@ document.querySelectorAll('.admin-tab-btn[data-tab]').forEach(btn => {
     if (btn.dataset.tab === 'support') loadThreads();
     if (btn.dataset.tab === 'settings') loadSettings();
     if (btn.dataset.tab === 'music') loadMusic();
+    if (btn.dataset.tab === 'news') loadNewsAdmin();
   });
 });
 
@@ -314,6 +315,56 @@ async function deleteMusic(id) {
   if (!confirm('Trekni o\'chirishni tasdiqlaysizmi?')) return;
   await api('/admin/music/' + id, { method: 'DELETE' });
   loadMusic();
+}
+
+// ---------- News ----------
+async function loadNewsAdmin() {
+  const { news } = await api('/admin/news');
+  document.getElementById('news-list-admin').innerHTML = news.map(n => `
+    <div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
+      <div class="flex items-center justify-between">
+        <div style="flex:1;min-width:0;">
+          ${n.image_path ? `<img src="${n.image_path}" style="max-width:100%;border-radius:8px;margin-bottom:6px;display:block;">` : ''}
+          <div style="font-size:13px;white-space:pre-wrap;">${escapeAttr(n.description)}</div>
+          <div class="text-dim" style="font-size:11px;">${fmtDate(n.created_at)}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" style="margin-left:10px;" onclick="deleteNews(${n.id})">🗑</button>
+      </div>
+    </div>
+  `).join('') || `<p class="text-dim text-center">Hozircha yangilik yo'q</p>`;
+}
+
+document.getElementById('news-add-btn').addEventListener('click', async () => {
+  const imageInput = document.getElementById('news-image-input');
+  const description = document.getElementById('news-description-input').value.trim();
+  const errBox = document.getElementById('news-error');
+  errBox.classList.add('hidden');
+
+  if (!description) {
+    errBox.textContent = 'Tafsif kiritilishi shart';
+    errBox.classList.remove('hidden');
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append('description', description);
+  if (imageInput.files[0]) fd.append('image', imageInput.files[0]);
+
+  try {
+    await api('/admin/news', { method: 'POST', body: fd });
+    imageInput.value = '';
+    document.getElementById('news-description-input').value = '';
+    await loadNewsAdmin();
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
+});
+
+async function deleteNews(id) {
+  if (!confirm('Yangilikni o\'chirishni tasdiqlaysizmi?')) return;
+  await api('/admin/news/' + id, { method: 'DELETE' });
+  loadNewsAdmin();
 }
 
 // ---------- Init ----------

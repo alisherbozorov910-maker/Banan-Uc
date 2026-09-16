@@ -19,6 +19,11 @@ router.get('/settings/music', (req, res) => {
   res.json({ url: track ? track.filename : null });
 });
 
+router.get('/news', requireAuth, (req, res) => {
+  const news = db.prepare('SELECT * FROM news ORDER BY created_at DESC').all();
+  res.json({ news });
+});
+
 router.post('/topup', requireAuth, upload.single('receipt'), (req, res) => {
   const { amount } = req.body;
   const amt = parseInt(amount, 10);

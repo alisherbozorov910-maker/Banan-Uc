@@ -38,12 +38,15 @@
 
   "menu_title": "Menyu",
   "menu_profile": "Profil",
+  "menu_news": "Yangiliklar",
   "menu_account": "Hisob",
   "menu_orders": "Buyurtmalar tarixi",
   "menu_leaderboard": "Top reyting",
   "menu_global_chat": "Global chat",
   "menu_language": "Til",
   "menu_sound": "Fon musiqasi",
+
+  "news_title": "Yangiliklar",
 
   "orders_title": "Buyurtmalar tarixi",
   "orders_subtitle": "PUBG akkauntingizga yuborilgan UC buyurtmalari",
@@ -95,10 +98,17 @@
   "admin_tab_support": "Yordam",
   "admin_tab_settings": "Sozlamalar",
   "admin_tab_music": "Musiqa",
+  "admin_tab_news": "Yangiliklar",
 
   "admin_music_upload": "Yangi trek yuklash",
   "admin_music_upload_btn": "Yuklash",
   "admin_music_list": "Yuklangan treklar",
+
+  "admin_news_add": "Yangi yangilik qo'shish",
+  "admin_news_image": "Rasm (ixtiyoriy)",
+  "admin_news_description": "Tafsif",
+  "admin_news_add_btn": "Qo'shish",
+  "admin_news_list": "Yangiliklar ro'yxati",
 
   "admin_stat_users": "Foydalanuvchilar",
   "admin_stat_pending_orders": "Kutilayotgan buyurtmalar",

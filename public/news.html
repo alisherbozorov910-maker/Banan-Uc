@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yangiliklar - PUBG UC Shop</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="navbar-root"></div>
+
+<div class="container">
+  <h2 class="mt-4" data-i18n="news_title">Yangiliklar</h2>
+
+  <div id="news-list" class="mt-3"></div>
+</div>
+
+<script src="/js/space-background.js"></script>
+<script src="/js/space-sound.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/common.js"></script>
+<script>
+async function loadNews() {
+  const user = await renderNavbar('news');
+  if (!user) { window.location.href = '/login.html'; return; }
+
+  const { news } = await api('/news');
+  const list = document.getElementById('news-list');
+
+  if (!news.length) {
+    list.innerHTML = `<p class="text-dim text-center">Hozircha yangiliklar yo'q</p>`;
+    return;
+  }
+
+  list.innerHTML = news.map(n => `
+    <div class="card mt-3" style="max-width:640px;margin-left:auto;margin-right:auto;overflow:hidden;">
+      ${n.image_path ? `<img src="${n.image_path}" style="width:100%;border-radius:12px;margin-bottom:14px;display:block;">` : ''}
+      <p style="white-space:pre-wrap;line-height:1.6;">${escapeHtml(n.description)}</p>
+      <div class="text-dim" style="font-size:12px;margin-top:8px;">${fmtDate(n.created_at)}</div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+loadNews();
+</script>
+</body>
+</html>
