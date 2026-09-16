@@ -98,7 +98,7 @@ async function renderNavbar(activePage) {
         <div class="side-menu-divider"></div>
 
         <div class="side-menu-item side-menu-toggle-row">
-          <span data-i18n="menu_sound">Kosmik ovoz</span>
+          <span data-i18n="menu_sound">Fon musiqasi</span>
           <label class="switch">
             <input type="checkbox" id="sound-toggle-checkbox">
             <span class="slider"></span>

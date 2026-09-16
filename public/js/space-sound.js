@@ -4,6 +4,7 @@ const SpaceSound = (function () {
   let trackUrl = null;
   let loaded = false;
   let saveTimer = null;
+  let readyToPlay = false;
 
   const POSITION_KEY = 'spaceSoundPosition';
 
@@ -11,6 +12,23 @@ const SpaceSound = (function () {
     if (audio && !isNaN(audio.currentTime)) {
       localStorage.setItem(POSITION_KEY, String(audio.currentTime));
     }
+  }
+
+  function startPlaybackFromSavedPosition() {
+    if (!audio) return;
+    const savedPos = parseFloat(localStorage.getItem(POSITION_KEY));
+    if (!isNaN(savedPos) && savedPos > 0 && isFinite(audio.duration) && savedPos < audio.duration) {
+      try { audio.currentTime = savedPos; } catch (e) { /* ignore */ }
+    }
+    audio.play().catch(() => {
+      const tryPlay = () => {
+        audio.play().catch(() => {});
+        document.removeEventListener('click', tryPlay);
+        document.removeEventListener('touchstart', tryPlay);
+      };
+      document.addEventListener('click', tryPlay, { once: true });
+      document.addEventListener('touchstart', tryPlay, { once: true });
+    });
   }
 
   async function ensureTrackLoaded() {
@@ -25,40 +43,25 @@ const SpaceSound = (function () {
     }
 
     if (trackUrl) {
-      audio = new Audio(trackUrl);
+      audio = new Audio();
       audio.loop = true;
       audio.volume = 0.35;
       audio.preload = 'auto';
+      audio.crossOrigin = 'anonymous';
 
-      // Oldingi sahifada to'xtagan joydan davom ettirish
-      const savedPos = parseFloat(localStorage.getItem(POSITION_KEY));
-      const restorePosition = () => {
-        if (!isNaN(savedPos) && savedPos > 0) {
-          try { audio.currentTime = savedPos; } catch (e) { /* ignore */ }
-        }
-        audio.removeEventListener('loadedmetadata', restorePosition);
-      };
-      audio.addEventListener('loadedmetadata', restorePosition);
-
-      // Pozitsiyani vaqti-vaqti bilan saqlab boramiz (har 3 soniyada)
+      // Pozitsiyani vaqti-vaqti bilan saqlab boramiz
       if (saveTimer) clearInterval(saveTimer);
       saveTimer = setInterval(savePosition, 3000);
-
-      // Sahifadan chiqishdan oldin ham saqlaymiz
       window.addEventListener('pagehide', savePosition);
       window.addEventListener('beforeunload', savePosition);
 
-      if (enabled) {
-        audio.play().catch(() => {
-          const tryPlay = () => {
-            audio.play().catch(() => {});
-            document.removeEventListener('click', tryPlay);
-            document.removeEventListener('touchstart', tryPlay);
-          };
-          document.addEventListener('click', tryPlay, { once: true });
-          document.addEventListener('touchstart', tryPlay, { once: true });
-        });
-      }
+      audio.addEventListener('loadedmetadata', () => {
+        readyToPlay = true;
+        if (enabled) startPlaybackFromSavedPosition();
+      }, { once: true });
+
+      audio.src = trackUrl;
+      audio.load();
     }
   }
 
@@ -66,7 +69,7 @@ const SpaceSound = (function () {
     enabled = true;
     localStorage.setItem('spaceSoundEnabled', 'true');
     ensureTrackLoaded().then(() => {
-      if (audio) audio.play().catch(() => {});
+      if (audio && readyToPlay) startPlaybackFromSavedPosition();
     });
   }
 
