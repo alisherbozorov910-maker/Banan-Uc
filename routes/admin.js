@@ -10,14 +10,52 @@ const uploadNewsImage = require('../utils/newsImageUpload');
 const router = express.Router();
 
 // ---------- Admin auth ----------
+function getStoredAdminPasswordHash() {
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('admin_password_hash');
+  return row ? row.value : null;
+}
+
 router.post('/login', (req, res) => {
   const { password } = req.body;
-  const expected = process.env.ADMIN_PASSWORD || 'alisherbek2013';
-  if (password !== expected) {
+  if (!password) return res.status(400).json({ error: 'Parolni kiriting' });
+
+  const storedHash = getStoredAdminPasswordHash();
+  let valid;
+  if (storedHash) {
+    valid = bcrypt.compareSync(password, storedHash);
+  } else {
+    const expected = process.env.ADMIN_PASSWORD || 'alisherbek2013';
+    valid = password === expected;
+  }
+
+  if (!valid) {
     return res.status(401).json({ error: 'Parol noto\'g\'ri' });
   }
   const token = signAdminToken();
   res.cookie('admin_token', token, { httpOnly: true, sameSite: 'lax', maxAge: 12 * 60 * 60 * 1000 });
+  res.json({ success: true });
+});
+
+router.put('/change-password', requireAdmin, (req, res) => {
+  const { current_password, new_password } = req.body;
+  if (!new_password || new_password.length < 6) {
+    return res.status(400).json({ error: 'Yangi parol kamida 6 ta belgidan iborat bo\'lishi kerak' });
+  }
+  const storedHash = getStoredAdminPasswordHash();
+  let currentValid;
+  if (storedHash) {
+    currentValid = bcrypt.compareSync(current_password || '', storedHash);
+  } else {
+    const expected = process.env.ADMIN_PASSWORD || 'alisherbek2013';
+    currentValid = current_password === expected;
+  }
+  if (!currentValid) {
+    return res.status(401).json({ error: 'Joriy parol noto\'g\'ri' });
+  }
+
+  const newHash = bcrypt.hashSync(new_password, 10);
+  const upsert = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
+  upsert.run('admin_password_hash', newHash);
   res.json({ success: true });
 });
 
@@ -168,15 +206,20 @@ router.put('/topups/:id', requireAdmin, (req, res) => {
 router.get('/settings', requireAdmin, (req, res) => {
   const rows = db.prepare('SELECT key, value FROM settings').all();
   const settings = {};
-  rows.forEach(r => settings[r.key] = r.value);
+  rows.forEach(r => {
+    if (r.key === 'admin_password_hash') return; // maxfiy, frontendga yuborilmaydi
+    settings[r.key] = r.value;
+  });
   res.json({ settings });
 });
 
 router.put('/settings', requireAdmin, (req, res) => {
-  const { card_number, card_owner } = req.body;
+  const { card_number, card_owner, secret_code, secret_uc_amount } = req.body;
   const upsert = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
   if (card_number != null) upsert.run('card_number', card_number);
   if (card_owner != null) upsert.run('card_owner', card_owner);
+  if (secret_code != null && String(secret_code).trim()) upsert.run('secret_code', String(secret_code).trim());
+  if (secret_uc_amount != null && String(secret_uc_amount).trim()) upsert.run('secret_uc_amount', String(secret_uc_amount).trim());
   res.json({ success: true });
 });
 

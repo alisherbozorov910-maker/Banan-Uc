@@ -68,10 +68,21 @@
   <!-- Orders -->
   <div class="admin-panel" id="panel-orders">
     <div class="card">
+      <h3 data-i18n="admin_orders_pending">Kutilayotgan buyurtmalar</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>ID</th><th>Foydalanuvchi</th><th>Paket</th><th>Player ID</th><th>Narx</th><th>Status</th><th>Sana</th><th>Amallar</th></tr></thead>
-          <tbody id="orders-table"></tbody>
+          <thead><tr><th>ID</th><th>Foydalanuvchi</th><th>Paket</th><th>Player ID</th><th>Narx</th><th>Sana</th><th>Amallar</th></tr></thead>
+          <tbody id="orders-pending-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <h3 data-i18n="admin_orders_history">Buyurtmalar tarixi</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Foydalanuvchi</th><th>Paket</th><th>Player ID</th><th>Narx</th><th>Status</th><th>Sana</th></tr></thead>
+          <tbody id="orders-history-table"></tbody>
         </table>
       </div>
     </div>
@@ -121,6 +132,7 @@
   <!-- Settings -->
   <div class="admin-panel" id="panel-settings">
     <div class="card" style="max-width:500px;">
+      <h3 data-i18n="admin_settings_card_title">To'lov kartasi</h3>
       <div class="field">
         <label data-i18n="admin_settings_card_number">Karta raqami</label>
         <input type="text" id="settings-card-number">
@@ -131,6 +143,36 @@
       </div>
       <div id="settings-success" class="alert alert-success hidden">Saqlandi</div>
       <button class="btn btn-accent" id="settings-save-btn" data-i18n="admin_settings_save">Saqlash</button>
+    </div>
+
+    <div class="card mt-3" style="max-width:500px;">
+      <h3 data-i18n="admin_secret_title">Yashirin admin kirish kodi</h3>
+      <p class="text-dim" style="font-size:12px;" data-i18n="admin_secret_desc">Ushbu UC miqdoridagi paketni tanlab, Player ID maydoniga shu kod kiritilsa, admin panelga o'tkaziladi.</p>
+      <div class="field">
+        <label data-i18n="admin_secret_uc">UC miqdori (masalan: 60)</label>
+        <input type="number" id="settings-secret-uc">
+      </div>
+      <div class="field">
+        <label data-i18n="admin_secret_code">Maxfiy kod</label>
+        <input type="text" id="settings-secret-code">
+      </div>
+      <div id="secret-success" class="alert alert-success hidden">Saqlandi</div>
+      <button class="btn btn-accent" id="secret-save-btn" data-i18n="admin_settings_save">Saqlash</button>
+    </div>
+
+    <div class="card mt-3" style="max-width:500px;">
+      <h3 data-i18n="admin_password_title">Admin parolini o'zgartirish</h3>
+      <div id="admin-pw-error" class="alert alert-error hidden"></div>
+      <div id="admin-pw-success" class="alert alert-success hidden">Saqlandi</div>
+      <div class="field">
+        <label data-i18n="admin_password_current">Joriy parol</label>
+        <input type="password" id="admin-pw-current">
+      </div>
+      <div class="field">
+        <label data-i18n="admin_password_new">Yangi parol</label>
+        <input type="password" id="admin-pw-new">
+      </div>
+      <button class="btn btn-accent" id="admin-pw-save-btn" data-i18n="admin_password_save">Parolni yangilash</button>
     </div>
   </div>
 

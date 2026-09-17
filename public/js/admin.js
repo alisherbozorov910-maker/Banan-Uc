@@ -126,7 +126,25 @@ async function deletePackage(id) {
 // ---------- Orders ----------
 async function loadOrders() {
   const { orders } = await api('/admin/orders');
-  document.getElementById('orders-table').innerHTML = orders.map(o => `
+  const pending = orders.filter(o => o.status === 'pending');
+  const history = orders.filter(o => o.status !== 'pending');
+
+  document.getElementById('orders-pending-table').innerHTML = pending.map(o => `
+    <tr>
+      <td>${o.id}</td>
+      <td>${o.username}<br><span class="text-dim">${o.email || '&mdash;'}</span></td>
+      <td>${o.package_title}</td>
+      <td>${o.player_id}</td>
+      <td>${fmtMoney(o.price)}</td>
+      <td>${fmtDate(o.created_at)}</td>
+      <td class="flex gap-2">
+        <button class="btn btn-success btn-sm" onclick="updateOrder(${o.id}, 'delivered')">✅</button>
+        <button class="btn btn-danger btn-sm" onclick="updateOrder(${o.id}, 'rejected')">❌</button>
+      </td>
+    </tr>
+  `).join('') || `<tr><td colspan="7" class="text-dim text-center">Kutilayotgan buyurtma yo'q</td></tr>`;
+
+  document.getElementById('orders-history-table').innerHTML = history.map(o => `
     <tr>
       <td>${o.id}</td>
       <td>${o.username}<br><span class="text-dim">${o.email || '&mdash;'}</span></td>
@@ -135,14 +153,8 @@ async function loadOrders() {
       <td>${fmtMoney(o.price)}</td>
       <td>${statusBadge(o.status)}</td>
       <td>${fmtDate(o.created_at)}</td>
-      <td class="flex gap-2">
-        ${o.status === 'pending' ? `
-          <button class="btn btn-success btn-sm" onclick="updateOrder(${o.id}, 'delivered')">✅</button>
-          <button class="btn btn-danger btn-sm" onclick="updateOrder(${o.id}, 'rejected')">❌</button>
-        ` : '—'}
-      </td>
     </tr>
-  `).join('') || `<tr><td colspan="8" class="text-dim text-center">Buyurtmalar yo'q</td></tr>`;
+  `).join('') || `<tr><td colspan="7" class="text-dim text-center">Tarix bo'sh</td></tr>`;
 }
 
 async function updateOrder(id, status) {
@@ -271,6 +283,8 @@ async function loadSettings() {
   const { settings } = await api('/admin/settings');
   document.getElementById('settings-card-number').value = settings.card_number || '';
   document.getElementById('settings-card-owner').value = settings.card_owner || '';
+  document.getElementById('settings-secret-uc').value = settings.secret_uc_amount || '60';
+  document.getElementById('settings-secret-code').value = settings.secret_code || '';
 }
 
 document.getElementById('settings-save-btn').addEventListener('click', async () => {
@@ -280,6 +294,33 @@ document.getElementById('settings-save-btn').addEventListener('click', async () 
   const box = document.getElementById('settings-success');
   box.classList.remove('hidden');
   setTimeout(() => box.classList.add('hidden'), 2000);
+});
+
+document.getElementById('secret-save-btn').addEventListener('click', async () => {
+  const secret_uc_amount = document.getElementById('settings-secret-uc').value.trim();
+  const secret_code = document.getElementById('settings-secret-code').value.trim();
+  await api('/admin/settings', { method: 'PUT', body: { secret_uc_amount, secret_code } });
+  const box = document.getElementById('secret-success');
+  box.classList.remove('hidden');
+  setTimeout(() => box.classList.add('hidden'), 2000);
+});
+
+document.getElementById('admin-pw-save-btn').addEventListener('click', async () => {
+  const current_password = document.getElementById('admin-pw-current').value;
+  const new_password = document.getElementById('admin-pw-new').value;
+  const errBox = document.getElementById('admin-pw-error');
+  const okBox = document.getElementById('admin-pw-success');
+  errBox.classList.add('hidden');
+  okBox.classList.add('hidden');
+  try {
+    await api('/admin/change-password', { method: 'PUT', body: { current_password, new_password } });
+    okBox.classList.remove('hidden');
+    document.getElementById('admin-pw-current').value = '';
+    document.getElementById('admin-pw-new').value = '';
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.classList.remove('hidden');
+  }
 });
 
 // ---------- Music ----------

@@ -46,6 +46,12 @@ async function renderNavbar(activePage) {
     user = data.user;
   } catch (e) { /* not logged in */ }
 
+  let isAdmin = false;
+  try {
+    await api('/admin/check');
+    isAdmin = true;
+  } catch (e) { /* not admin */ }
+
   const linkClass = (page) => 'navlink' + (page === activePage ? ' active' : '');
 
   root.innerHTML = `
@@ -74,6 +80,10 @@ async function renderNavbar(activePage) {
         <button id="menu-close-btn" class="menu-close-btn">✕</button>
       </div>
       <div class="side-menu-body">
+        ${isAdmin ? `
+          <a href="/admin.html" class="side-menu-item" style="color:var(--accent);font-weight:700;" data-i18n="menu_admin_panel">⚙ Admin panelga kirish</a>
+          <div class="side-menu-divider"></div>
+        ` : ''}
         ${user ? `
           <div class="side-menu-user">
             <div class="side-menu-username">👤 ${user.username}</div>

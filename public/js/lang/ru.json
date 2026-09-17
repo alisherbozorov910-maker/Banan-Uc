@@ -38,6 +38,7 @@
 
   "menu_title": "Меню",
   "menu_profile": "Профиль",
+  "menu_admin_panel": "⚙ Войти в админ-панель",
   "menu_news": "Новости",
   "menu_account": "Счёт",
   "menu_orders": "История заказов",
@@ -125,7 +126,21 @@
 
   "admin_settings_card_number": "Номер карты",
   "admin_settings_card_owner": "Владелец карты",
+  "admin_settings_card_title": "Платёжная карта",
   "admin_settings_save": "Сохранить",
+
+  "admin_secret_title": "Секретный код входа в админку",
+  "admin_secret_desc": "Если выбрать пакет с этим количеством UC и ввести данный код в поле Player ID, произойдёт переход в админ-панель.",
+  "admin_secret_uc": "Количество UC (например: 60)",
+  "admin_secret_code": "Секретный код",
+
+  "admin_password_title": "Изменить пароль администратора",
+  "admin_password_current": "Текущий пароль",
+  "admin_password_new": "Новый пароль",
+  "admin_password_save": "Обновить пароль",
+
+  "admin_orders_pending": "Ожидающие заказы",
+  "admin_orders_history": "История заказов",
 
   "footer_text": "Все права защищены."
 }

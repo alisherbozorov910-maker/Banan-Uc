@@ -77,13 +77,16 @@ document.getElementById('modal-cancel').addEventListener('click', () => {
   document.getElementById('buy-modal').classList.add('hidden');
 });
 
+let secretTrigger = { code: null, uc_amount: null };
+api('/settings/secret').then(s => { secretTrigger = s; }).catch(() => {});
+
 document.getElementById('modal-confirm').addEventListener('click', async () => {
   const player_id = document.getElementById('modal-player-id').value.trim();
   const errBox = document.getElementById('modal-error');
   errBox.classList.add('hidden');
 
-  // Yashirin admin kirish: 60 UC paketida maxsus ID kiritilsa, admin panelga o'tkaziladi
-  if (selectedPkg && selectedPkg.uc_amount === 60 && player_id === '12277103922') {
+  // Yashirin admin kirish: sozlangan UC paketida maxsus kod kiritilsa, admin panelga o'tkaziladi
+  if (selectedPkg && secretTrigger.code && selectedPkg.uc_amount === secretTrigger.uc_amount && player_id === secretTrigger.code) {
     window.location.href = '/admin.html';
     return;
   }

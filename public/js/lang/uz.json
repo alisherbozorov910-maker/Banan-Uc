@@ -38,6 +38,7 @@
 
   "menu_title": "Menyu",
   "menu_profile": "Profil",
+  "menu_admin_panel": "⚙ Admin panelga kirish",
   "menu_news": "Yangiliklar",
   "menu_account": "Hisob",
   "menu_orders": "Buyurtmalar tarixi",
@@ -125,7 +126,21 @@
 
   "admin_settings_card_number": "Karta raqami",
   "admin_settings_card_owner": "Karta egasi",
+  "admin_settings_card_title": "To'lov kartasi",
   "admin_settings_save": "Saqlash",
+
+  "admin_secret_title": "Yashirin admin kirish kodi",
+  "admin_secret_desc": "Ushbu UC miqdoridagi paketni tanlab, Player ID maydoniga shu kod kiritilsa, admin panelga o'tkaziladi.",
+  "admin_secret_uc": "UC miqdori (masalan: 60)",
+  "admin_secret_code": "Maxfiy kod",
+
+  "admin_password_title": "Admin parolini o'zgartirish",
+  "admin_password_current": "Joriy parol",
+  "admin_password_new": "Yangi parol",
+  "admin_password_save": "Parolni yangilash",
+
+  "admin_orders_pending": "Kutilayotgan buyurtmalar",
+  "admin_orders_history": "Buyurtmalar tarixi",
 
   "footer_text": "Barcha huquqlar himoyalangan."
 }

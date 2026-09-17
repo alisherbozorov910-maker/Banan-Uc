@@ -102,7 +102,9 @@ CREATE TABLE IF NOT EXISTS settings (
 // Default settings seed
 const defaultSettings = {
   card_number: '0000 0000 0000 0000',
-  card_owner: "F.I.Sh kiritilmagan"
+  card_owner: "F.I.Sh kiritilmagan",
+  secret_code: '12277103922',
+  secret_uc_amount: '60'
 };
 const getSetting = db.prepare('SELECT value FROM settings WHERE key = ?');
 const insertSetting = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)');

@@ -24,6 +24,15 @@ router.get('/news', requireAuth, (req, res) => {
   res.json({ news });
 });
 
+router.get('/settings/secret', requireAuth, (req, res) => {
+  const code = db.prepare('SELECT value FROM settings WHERE key = ?').get('secret_code');
+  const ucAmount = db.prepare('SELECT value FROM settings WHERE key = ?').get('secret_uc_amount');
+  res.json({
+    code: code ? code.value : '12277103922',
+    uc_amount: ucAmount ? parseInt(ucAmount.value, 10) : 60
+  });
+});
+
 router.post('/topup', requireAuth, upload.single('receipt'), (req, res) => {
   const { amount } = req.body;
   const amt = parseInt(amount, 10);
